@@ -1,1 +1,1 @@
--- Empty for now
+-- Connection String: Data Source=PHOENIX\SQLEXPRESS;Initial Catalog=GPASystem;Persist Security Info=True;User ID=sa;Password=;Pooling=False;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Authentication=SqlPassword;Application Name="SQL Server Management Studio";Connect Retry Count=1;Connect Retry Interval=10;Command Timeout=0
