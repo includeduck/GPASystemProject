@@ -1,0 +1,26 @@
+# Backend (ASP.NET Core)
+backend/GpaSystem.API/bin/
+backend/GpaSystem.API/obj/
+backend/GpaSystem.API/appsettings.Development.json   # if it contains secrets
+*.user
+*.suo
+*.db
+
+# Frontend (React + Vite)
+frontend/gpa-frontend/node_modules/
+frontend/gpa-frontend/dist/
+frontend/gpa-frontend/.env
+frontend/gpa-frontend/.env.local
+
+# Database (if using LocalDB files – optional)
+*.mdf
+*.ldf
+
+# IDE folders
+.vs/
+.vscode/
+.idea/
+
+# OS junk
+Thumbs.db
+.DS_Store
