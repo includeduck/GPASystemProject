@@ -1,17 +1,60 @@
-GpaSystem.sln
-├── GpaSystem.API/               # ASP.NET Core Web API
-│   ├── Controllers/              (or Minimal API endpoints in Program.cs)
-│   ├── Models/                   (domain classes: Student, Course, etc.)
-│   ├── Data/                     (DbContext, migrations)
-│   ├── Services/                 (IGpaCalculator, EnrollmentService, etc.)
-│   ├── DTOs/                     (data transfer objects)
-│   └── appsettings.json
-├── GpaSystem.Tests/              # xUnit tests for backend
-└── gpa-frontend/                # React + TypeScript (created with Vite)
-    ├── src/
-    │   ├── components/
-    │   ├── pages/
-    │   ├── services/             (API calls)
-    │   ├── types/                (TypeScript interfaces)
-    │   └── App.tsx
-    └── package.json
+GPA_System/
+├── backend/
+│   └── GpaSystem.API/                      # ASP.NET Core Web API (net8.0)
+│       ├── Models/
+│       │   ├── Department.cs
+│       │   ├── Semester.cs
+│       │   ├── GradingPolicy.cs
+│       │   ├── AppUser.cs
+│       │   ├── Administrator.cs
+│       │   ├── Instructor.cs
+│       │   ├── Student.cs
+│       │   ├── Course.cs
+│       │   ├── CoursePrerequisite.cs
+│       │   ├── CourseOffering.cs
+│       │   ├── Enrollment.cs
+│       │   ├── GradeComponent.cs
+│       │   ├── GradeEntry.cs
+│       │   ├── CourseGrade.cs
+│       │   ├── AcademicRecord.cs
+│       │   └── Attendance.cs
+│       ├── Data/
+│       │   └── GpaSystemDbContext.cs       (EF Core DbContext)
+│       ├── Services/                        (To be implemented - Phase 1+)
+│       ├── DTOs/                            (To be implemented - Phase 1+)
+│       ├── Controllers/                     (To be implemented - Phase 1+)
+│       ├── Program.cs                       (Minimal API with CORS, health check, test endpoints)
+│       ├── appsettings.json
+│       ├── appsettings.Development.json     (LocalDB connection string)
+│       ├── GpaSystem.API.csproj
+│       └── Properties/
+│
+├── frontend/
+│   └── gpa-frontend/                       # React + TypeScript (Vite)
+│       ├── src/
+│       │   ├── components/                  (To be implemented - Phase 1+)
+│       │   ├── pages/                       (To be implemented - Phase 1+)
+│       │   ├── services/
+│       │   │   └── api.ts                  (API client service)
+│       │   ├── types/
+│       │   │   └── models.ts               (TypeScript interfaces)
+│       │   ├── App.tsx                      (Main app component - API test)
+│       │   ├── App.css
+│       │   ├── index.css
+│       │   ├── main.tsx
+│       │   └── assets/
+│       ├── public/
+│       ├── index.html
+│       ├── vite.config.ts
+│       ├── tsconfig.json
+│       ├── package.json                     (React 19, axios, react-router-dom)
+│       └── eslint.config.js
+│
+├── SystemInfo/
+│   ├── GPASystem_SRS.md                    (56 functional requirements)
+│   ├── ImplementationOrder.md              (Phase 0-6 implementation plan)
+│   ├── Schema.sql                          (T-SQL database schema)
+│   ├── UseCases.md                         (16 use cases)
+│   └── Structure.txt                       (This file)
+│
+└── Progress.md                             (Development progress tracker)

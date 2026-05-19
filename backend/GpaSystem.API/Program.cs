@@ -1,13 +1,31 @@
+using Microsoft.EntityFrameworkCore;
+using GpaSystem.API.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Add services to the container
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Add DbContext
+builder.Services.AddDbContext<GpaSystemDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("GpaSystemDb")));
+
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -15,30 +33,27 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowReactApp");
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+// Test endpoint - verify API is working
+app.MapGet("/api/test", () => new { message = "GPA System API is running!", timestamp = DateTime.UtcNow })
+    .WithName("TestApi")
+    .WithOpenApi();
 
-app.MapGet("/weatherforecast", () =>
+// Health check endpoint
+app.MapGet("/api/health", async (GpaSystemDbContext db) =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    try
+    {
+        await db.Database.ExecuteSqlAsync($"SELECT 1");
+        return Results.Ok(new { status = "healthy", database = "connected" });
+    }
+    catch
+    {
+        return Results.StatusCode(500);
+    }
 })
-.WithName("GetWeatherForecast")
+.WithName("HealthCheck")
 .WithOpenApi();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
