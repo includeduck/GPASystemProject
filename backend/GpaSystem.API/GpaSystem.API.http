@@ -1,0 +1,6 @@
+@GpaSystem.API_HostAddress = http://localhost:5273
+
+GET {{GpaSystem.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

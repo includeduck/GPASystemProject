@@ -1,0 +1,17 @@
+GpaSystem.sln
+├── GpaSystem.API/               # ASP.NET Core Web API
+│   ├── Controllers/              (or Minimal API endpoints in Program.cs)
+│   ├── Models/                   (domain classes: Student, Course, etc.)
+│   ├── Data/                     (DbContext, migrations)
+│   ├── Services/                 (IGpaCalculator, EnrollmentService, etc.)
+│   ├── DTOs/                     (data transfer objects)
+│   └── appsettings.json
+├── GpaSystem.Tests/              # xUnit tests for backend
+└── gpa-frontend/                # React + TypeScript (created with Vite)
+    ├── src/
+    │   ├── components/
+    │   ├── pages/
+    │   ├── services/             (API calls)
+    │   ├── types/                (TypeScript interfaces)
+    │   └── App.tsx
+    └── package.json
