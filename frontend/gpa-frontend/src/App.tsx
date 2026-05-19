@@ -1,105 +1,58 @@
-import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
-import { apiService } from './services/api'
+import { BrowserRouter, Navigate, NavLink, Route, Routes } from 'react-router-dom';
+import { BookOpen, Building2, GraduationCap, UserRoundCog, Users } from 'lucide-react';
+import './App.css';
+import { CoursesPage } from './pages/CoursesPage';
+import { DepartmentsPage } from './pages/DepartmentsPage';
+import { InstructorsPage } from './pages/InstructorsPage';
+import { StudentsPage } from './pages/StudentsPage';
 
-interface ApiStatus {
-  test: { message: string; timestamp: string } | null;
-  health: { status: string; database: string } | null;
-  loading: boolean;
-  error: string | null;
-}
+const navigation = [
+  { to: '/departments', label: 'Departments', icon: Building2 },
+  { to: '/students', label: 'Students', icon: Users },
+  { to: '/instructors', label: 'Instructors', icon: UserRoundCog },
+  { to: '/courses', label: 'Courses', icon: BookOpen },
+];
 
 function App() {
-  const [apiStatus, setApiStatus] = useState<ApiStatus>({
-    test: null,
-    health: null,
-    loading: true,
-    error: null,
-  })
-
-  useEffect(() => {
-    const checkApi = async () => {
-      try {
-        const [testData, healthData] = await Promise.all([
-          apiService.test(),
-          apiService.health(),
-        ])
-        setApiStatus({
-          test: testData,
-          health: healthData,
-          loading: false,
-          error: null,
-        })
-      } catch (err) {
-        setApiStatus({
-          test: null,
-          health: null,
-          loading: false,
-          error: err instanceof Error ? err.message : 'Unknown error',
-        })
-      }
-    }
-
-    checkApi()
-  }, [])
-
   return (
-    <>
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <img src={reactLogo} alt="React logo" style={{ marginRight: '10px', display: 'inline-block' }} />
-          <img src={viteLogo} alt="Vite logo" style={{ display: 'inline-block' }} />
-        </div>
-
-        <h1>🎓 GPA System</h1>
-        <p>Student Result and GPA Management System</p>
-
-        <section style={{ marginTop: '30px' }}>
-          <h2>API Connection Status</h2>
-          {apiStatus.loading ? (
-            <p>🔄 Checking API connection...</p>
-          ) : apiStatus.error ? (
-            <div style={{ color: 'red', padding: '10px', backgroundColor: '#fee' }}>
-              ❌ Error: {apiStatus.error}
+    <BrowserRouter>
+      <div className="app-shell">
+        <aside className="sidebar" aria-label="Primary">
+          <div className="brand">
+            <span className="brand__mark">
+              <GraduationCap size={24} aria-hidden="true" />
+            </span>
+            <div>
+              <strong>GPA System</strong>
+              <span>Admin</span>
             </div>
-          ) : (
-            <div style={{ color: 'green', padding: '10px', backgroundColor: '#efe' }}>
-              ✅ API Connected Successfully!
-            </div>
-          )}
+          </div>
+          <nav className="nav-list">
+            {navigation.map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink key={item.to} to={item.to}>
+                  <Icon size={18} aria-hidden="true" />
+                  {item.label}
+                </NavLink>
+              );
+            })}
+          </nav>
+        </aside>
 
-          {apiStatus.test && (
-            <div style={{ marginTop: '15px', padding: '10px', backgroundColor: '#f0f0f0' }}>
-              <h3>Test Endpoint</h3>
-              <p><strong>Message:</strong> {apiStatus.test.message}</p>
-              <p><strong>Timestamp:</strong> {apiStatus.test.timestamp}</p>
-            </div>
-          )}
-
-          {apiStatus.health && (
-            <div style={{ marginTop: '15px', padding: '10px', backgroundColor: '#f0f0f0' }}>
-              <h3>Health Check</h3>
-              <p><strong>Status:</strong> {apiStatus.health.status}</p>
-              <p><strong>Database:</strong> {apiStatus.health.database}</p>
-            </div>
-          )}
-        </section>
-
-        <section style={{ marginTop: '30px' }}>
-          <h2>Next Steps</h2>
-          <ul>
-            <li>✅ Backend API running at http://localhost:5273</li>
-            <li>✅ Database connected (GPASystem)</li>
-            <li>✅ Frontend communicating with backend</li>
-            <li>⏳ Ready to build Phase 1: CRUD operations</li>
-          </ul>
-        </section>
+        <main className="workspace">
+          <Routes>
+            <Route path="/" element={<Navigate to="/departments" replace />} />
+            <Route path="/departments" element={<DepartmentsPage />} />
+            <Route path="/students" element={<StudentsPage />} />
+            <Route path="/instructors" element={<InstructorsPage />} />
+            <Route path="/courses" element={<CoursesPage />} />
+            <Route path="*" element={<Navigate to="/departments" replace />} />
+          </Routes>
+        </main>
       </div>
-    </>
-  )
+    </BrowserRouter>
+  );
 }
 
-export default App
-
+export default App;

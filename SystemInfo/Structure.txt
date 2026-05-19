@@ -1,60 +1,99 @@
 GPA_System/
-├── backend/
-│   └── GpaSystem.API/                      # ASP.NET Core Web API (net8.0)
-│       ├── Models/
-│       │   ├── Department.cs
-│       │   ├── Semester.cs
-│       │   ├── GradingPolicy.cs
-│       │   ├── AppUser.cs
-│       │   ├── Administrator.cs
-│       │   ├── Instructor.cs
-│       │   ├── Student.cs
-│       │   ├── Course.cs
-│       │   ├── CoursePrerequisite.cs
-│       │   ├── CourseOffering.cs
-│       │   ├── Enrollment.cs
-│       │   ├── GradeComponent.cs
-│       │   ├── GradeEntry.cs
-│       │   ├── CourseGrade.cs
-│       │   ├── AcademicRecord.cs
-│       │   └── Attendance.cs
-│       ├── Data/
-│       │   └── GpaSystemDbContext.cs       (EF Core DbContext)
-│       ├── Services/                        (To be implemented - Phase 1+)
-│       ├── DTOs/                            (To be implemented - Phase 1+)
-│       ├── Controllers/                     (To be implemented - Phase 1+)
-│       ├── Program.cs                       (Minimal API with CORS, health check, test endpoints)
-│       ├── appsettings.json
-│       ├── appsettings.Development.json     (LocalDB connection string)
-│       ├── GpaSystem.API.csproj
-│       └── Properties/
-│
-├── frontend/
-│   └── gpa-frontend/                       # React + TypeScript (Vite)
-│       ├── src/
-│       │   ├── components/                  (To be implemented - Phase 1+)
-│       │   ├── pages/                       (To be implemented - Phase 1+)
-│       │   ├── services/
-│       │   │   └── api.ts                  (API client service)
-│       │   ├── types/
-│       │   │   └── models.ts               (TypeScript interfaces)
-│       │   ├── App.tsx                      (Main app component - API test)
-│       │   ├── App.css
-│       │   ├── index.css
-│       │   ├── main.tsx
-│       │   └── assets/
-│       ├── public/
-│       ├── index.html
-│       ├── vite.config.ts
-│       ├── tsconfig.json
-│       ├── package.json                     (React 19, axios, react-router-dom)
-│       └── eslint.config.js
-│
-├── SystemInfo/
-│   ├── GPASystem_SRS.md                    (56 functional requirements)
-│   ├── ImplementationOrder.md              (Phase 0-6 implementation plan)
-│   ├── Schema.sql                          (T-SQL database schema)
-│   ├── UseCases.md                         (16 use cases)
-│   └── Structure.txt                       (This file)
-│
-└── Progress.md                             (Development progress tracker)
+|-- backend/
+|   `-- GpaSystem.API/                      # ASP.NET Core Web API (net8.0)
+|       |-- Controllers/                     # Phase 1 CRUD API controllers
+|       |   |-- CoursesController.cs
+|       |   |-- DepartmentsController.cs
+|       |   |-- InstructorsController.cs
+|       |   `-- StudentsController.cs
+|       |-- Data/
+|       |   `-- GpaSystemDbContext.cs        # EF Core DbContext with explicit SQL schema mappings
+|       |-- DTOs/                            # API request/response contracts
+|       |   |-- CommonDtos.cs
+|       |   |-- CourseDtos.cs
+|       |   |-- DepartmentDtos.cs
+|       |   |-- InstructorDtos.cs
+|       |   `-- StudentDtos.cs
+|       |-- Exceptions/
+|       |   `-- ApiException.cs              # HTTP-aware service exception type
+|       |-- Models/                          # EF Core entity models
+|       |   |-- Department.cs
+|       |   |-- Semester.cs
+|       |   |-- GradingPolicy.cs
+|       |   |-- AppUser.cs
+|       |   |-- Administrator.cs
+|       |   |-- Instructor.cs
+|       |   |-- Student.cs
+|       |   |-- Course.cs
+|       |   |-- CoursePrerequisite.cs
+|       |   |-- CourseOffering.cs
+|       |   |-- Enrollment.cs
+|       |   |-- GradeComponent.cs
+|       |   |-- GradeEntry.cs
+|       |   |-- CourseGrade.cs
+|       |   |-- AcademicRecord.cs
+|       |   `-- Attendance.cs
+|       |-- Repositories/                     # Entity-specific data access wrappers
+|       |   |-- DepartmentRepository.cs
+|       |   |-- StudentRepository.cs
+|       |   |-- InstructorRepository.cs
+|       |   |-- CourseRepository.cs
+|       |   `-- I*Repository.cs
+|       |-- Services/                         # Phase 1 CRUD business logic
+|       |   |-- CredentialService.cs
+|       |   |-- DepartmentService.cs
+|       |   |-- StudentService.cs
+|       |   |-- InstructorService.cs
+|       |   |-- CourseService.cs
+|       |   `-- I*Service.cs
+|       |-- Program.cs                        # DI, CORS, Swagger, health/test endpoints, controllers
+|       |-- appsettings.json
+|       |-- appsettings.Development.json      # Local SQL Server connection string
+|       |-- GpaSystem.API.csproj
+|       `-- Properties/
+|
+|-- frontend/
+|   `-- gpa-frontend/                        # React + TypeScript + Vite
+|       |-- src/
+|       |   |-- components/                   # Reusable admin UI
+|       |   |   |-- ConfirmDialog.tsx
+|       |   |   |-- CredentialsPanel.tsx
+|       |   |   |-- EmptyState.tsx
+|       |   |   `-- StatusBanner.tsx
+|       |   |-- pages/                        # Phase 1 admin pages
+|       |   |   |-- CoursesPage.tsx
+|       |   |   |-- DepartmentsPage.tsx
+|       |   |   |-- InstructorsPage.tsx
+|       |   |   `-- StudentsPage.tsx
+|       |   |-- services/
+|       |   |   `-- api.ts                    # Axios API client and CRUD services
+|       |   |-- types/
+|       |   |   `-- models.ts                 # TypeScript API models/forms
+|       |   |-- utils/
+|       |   |   `-- dates.ts
+|       |   |-- App.tsx                       # Admin shell with routes
+|       |   |-- App.css
+|       |   |-- index.css
+|       |   `-- main.tsx
+|       |-- public/
+|       |-- index.html
+|       |-- vite.config.ts
+|       |-- tsconfig.json
+|       |-- package.json                      # React 19, axios, react-router-dom, lucide-react
+|       `-- eslint.config.js
+|
+|-- scripts/
+|   |-- dev-start.bat
+|   `-- dev-stop.bat
+|
+|-- DBtests/
+|   `-- testQueries.sql
+|
+|-- SystemInfo/
+|   |-- GPASystem_SRS.md
+|   |-- ImplementationOrder.md
+|   |-- Schema.sql
+|   |-- UseCases.md
+|   `-- Structure.txt
+|
+`-- Progress.md
