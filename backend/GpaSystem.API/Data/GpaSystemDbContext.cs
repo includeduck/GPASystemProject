@@ -12,6 +12,7 @@ public class GpaSystemDbContext : DbContext
     public DbSet<Department> Departments { get; set; }
     public DbSet<Semester> Semesters { get; set; }
     public DbSet<GradingPolicy> GradingPolicies { get; set; }
+    public DbSet<Configuration> Configurations { get; set; }
     public DbSet<AppUser> AppUsers { get; set; }
     public DbSet<Administrator> Administrators { get; set; }
     public DbSet<Instructor> Instructors { get; set; }
@@ -63,6 +64,16 @@ public class GpaSystemDbContext : DbContext
             entity.Property(e => e.GradePoint).HasColumnName("grade_point").HasPrecision(3, 2);
             entity.Property(e => e.IsActive).HasColumnName("is_active");
             entity.Property(e => e.EffectiveFrom).HasColumnName("effective_from");
+        });
+
+        modelBuilder.Entity<Configuration>(entity =>
+        {
+            entity.ToTable("Configuration");
+            entity.HasKey(e => e.ConfigKey);
+            entity.Property(e => e.ConfigKey).HasColumnName("config_key").HasMaxLength(100);
+            entity.Property(e => e.ConfigValue).HasColumnName("config_value").IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Description).HasColumnName("description").HasMaxLength(255);
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at").HasDefaultValueSql("GETUTCDATE()");
         });
 
         modelBuilder.Entity<AppUser>(entity =>

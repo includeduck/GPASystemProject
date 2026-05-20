@@ -1,13 +1,20 @@
 import axios from 'axios';
 import type {
+  AvailableOffering,
   Course,
+  CourseOffering,
+  CourseOfferingForm,
   CourseForm,
   CreateInstructorResponse,
   CreateStudentResponse,
   Department,
   DepartmentForm,
+  Enrollment,
   Instructor,
   InstructorForm,
+  Prerequisite,
+  Semester,
+  SemesterForm,
   Student,
   StudentForm,
 } from '../types/models';
@@ -143,5 +150,83 @@ export const courseApi = {
   },
   delete: async (id: number): Promise<void> => {
     await apiClient.delete(`/courses/${id}`);
+  },
+};
+
+export const semesterApi = {
+  list: async (): Promise<Semester[]> => {
+    const response = await apiClient.get('/semesters');
+    return response.data;
+  },
+  create: async (payload: SemesterForm): Promise<Semester> => {
+    const response = await apiClient.post('/semesters', payload);
+    return response.data;
+  },
+  update: async (id: number, payload: SemesterForm): Promise<Semester> => {
+    const response = await apiClient.put(`/semesters/${id}`, payload);
+    return response.data;
+  },
+  setCurrent: async (id: number): Promise<Semester> => {
+    const response = await apiClient.put(`/semesters/${id}/current`);
+    return response.data;
+  },
+  delete: async (id: number): Promise<void> => {
+    await apiClient.delete(`/semesters/${id}`);
+  },
+};
+
+export const courseOfferingApi = {
+  list: async (semesterId?: number): Promise<CourseOffering[]> => {
+    const response = await apiClient.get('/course-offerings', {
+      params: semesterId ? { semesterId } : undefined,
+    });
+    return response.data;
+  },
+  create: async (payload: CourseOfferingForm): Promise<CourseOffering> => {
+    const response = await apiClient.post('/course-offerings', payload);
+    return response.data;
+  },
+  update: async (id: number, payload: CourseOfferingForm): Promise<CourseOffering> => {
+    const response = await apiClient.put(`/course-offerings/${id}`, payload);
+    return response.data;
+  },
+  delete: async (id: number): Promise<void> => {
+    await apiClient.delete(`/course-offerings/${id}`);
+  },
+};
+
+export const prerequisiteApi = {
+  list: async (courseId: number): Promise<Prerequisite[]> => {
+    const response = await apiClient.get(`/courses/${courseId}/prerequisites`);
+    return response.data;
+  },
+  add: async (courseId: number, prerequisiteCourseId: number): Promise<Prerequisite> => {
+    const response = await apiClient.post(`/courses/${courseId}/prerequisites`, {
+      prerequisiteCourseId,
+    });
+    return response.data;
+  },
+  remove: async (courseId: number, prerequisiteCourseId: number): Promise<void> => {
+    await apiClient.delete(`/courses/${courseId}/prerequisites/${prerequisiteCourseId}`);
+  },
+};
+
+export const enrollmentApi = {
+  forStudent: async (studentId: number): Promise<Enrollment[]> => {
+    const response = await apiClient.get('/enrollments', { params: { studentId } });
+    return response.data;
+  },
+  available: async (studentId: number, semesterId?: number): Promise<AvailableOffering[]> => {
+    const response = await apiClient.get('/enrollments/available', {
+      params: {
+        studentId,
+        semesterId,
+      },
+    });
+    return response.data;
+  },
+  enroll: async (studentId: number, offeringId: number): Promise<Enrollment> => {
+    const response = await apiClient.post('/enrollments', { studentId, offeringId });
+    return response.data;
   },
 };

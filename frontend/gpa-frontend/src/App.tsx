@@ -1,9 +1,22 @@
 import { BrowserRouter, Navigate, NavLink, Route, Routes } from 'react-router-dom';
-import { BookOpen, Building2, GraduationCap, UserRoundCog, Users } from 'lucide-react';
+import {
+  BookOpen,
+  Building2,
+  CalendarDays,
+  ClipboardList,
+  GraduationCap,
+  Link2,
+  UserRoundCog,
+  Users,
+} from 'lucide-react';
 import './App.css';
 import { CoursesPage } from './pages/CoursesPage';
 import { DepartmentsPage } from './pages/DepartmentsPage';
+import { EnrollmentsPage } from './pages/EnrollmentsPage';
 import { InstructorsPage } from './pages/InstructorsPage';
+import { OfferingsPage } from './pages/OfferingsPage';
+import { PrerequisitesPage } from './pages/PrerequisitesPage';
+import { SemestersPage } from './pages/SemestersPage';
 import { StudentsPage } from './pages/StudentsPage';
 
 const navigation = [
@@ -11,6 +24,10 @@ const navigation = [
   { to: '/students', label: 'Students', icon: Users },
   { to: '/instructors', label: 'Instructors', icon: UserRoundCog },
   { to: '/courses', label: 'Courses', icon: BookOpen },
+  { to: '/semesters', label: 'Semesters', icon: CalendarDays },
+  { to: '/offerings', label: 'Offerings', icon: ClipboardList },
+  { to: '/prerequisites', label: 'Prerequisites', icon: Link2 },
+  { to: '/enrollments', label: 'Enrollments', icon: GraduationCap },
 ];
 
 function App() {
@@ -47,6 +64,10 @@ function App() {
             <Route path="/students" element={<StudentsPage />} />
             <Route path="/instructors" element={<InstructorsPage />} />
             <Route path="/courses" element={<CoursesPage />} />
+            <Route path="/semesters" element={<SemestersPage />} />
+            <Route path="/offerings" element={<OfferingsPage />} />
+            <Route path="/prerequisites" element={<PrerequisitesPage />} />
+            <Route path="/enrollments" element={<EnrollmentsPage />} />
             <Route path="*" element={<Navigate to="/departments" replace />} />
           </Routes>
         </main>

@@ -21,11 +21,19 @@ builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IInstructorRepository, InstructorRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<ISemesterRepository, SemesterRepository>();
+builder.Services.AddScoped<ICourseOfferingRepository, CourseOfferingRepository>();
+builder.Services.AddScoped<ICoursePrerequisiteRepository, CoursePrerequisiteRepository>();
+builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
 builder.Services.AddScoped<ICredentialService, CredentialService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IInstructorService, InstructorService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<ISemesterService, SemesterService>();
+builder.Services.AddScoped<ICourseOfferingService, CourseOfferingService>();
+builder.Services.AddScoped<IPrerequisiteService, PrerequisiteService>();
+builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 
 // Add CORS
 builder.Services.AddCors(options =>

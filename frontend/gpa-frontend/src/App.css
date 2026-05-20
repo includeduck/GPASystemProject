@@ -142,6 +142,18 @@ fieldset {
   grid-column: 1 / -1;
 }
 
+.checkbox-field {
+  align-content: end;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  min-height: 42px;
+}
+
+.checkbox-field input {
+  width: 18px;
+  min-height: 18px;
+}
+
 label {
   display: grid;
   gap: 6px;
@@ -162,6 +174,11 @@ textarea {
   border: 1px solid var(--border);
   border-radius: 6px;
   outline: none;
+}
+
+label.checkbox-field input {
+  width: 18px;
+  min-height: 18px;
 }
 
 textarea {
@@ -342,7 +359,7 @@ tr:last-child td {
 }
 
 .table-actions {
-  width: 112px;
+  width: 148px;
   text-align: right;
 }
 
@@ -369,6 +386,18 @@ tr:last-child td {
 .badge--graduated {
   color: #1d4ed8;
   background: var(--accent-soft);
+}
+
+.badge--completed,
+.badge--enrolled {
+  color: #1d4ed8;
+  background: var(--accent-soft);
+}
+
+.badge--cancelled,
+.badge--dropped {
+  color: var(--danger);
+  background: var(--danger-soft);
 }
 
 .empty-state {

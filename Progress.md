@@ -94,23 +94,60 @@
 ### Deferred by Design
 - Authentication and authorization remain Phase 5.
 - Audit logging remains deferred.
-- Course capacity remains on `CourseOffering` and will be implemented during Phase 2 enrollment work.
+- Course capacity remains on `CourseOffering`; enforcement is handled in Phase 2 enrollment work.
 
 ---
 
-## Phase 2: Enrollment Basics PENDING
+## Phase 2: Enrollment Basics COMPLETED
 
-**Status:** Ready to start  
-**Expected Tasks:**
-1. Basic enrollment without capacity/prerequisite checks.
-2. Add capacity validation using `CourseOffering.max_capacity`.
-3. Add prerequisite validation.
+**Status:** All planned Phase 2 work implemented and verified  
+**Date Started:** May 21, 2026  
+**Date Completed:** May 21, 2026
+
+### Scope
+1. Semester management for current and future academic terms.
+2. Course offering management with instructor, semester, status, and capacity.
+3. Course prerequisite management with duplicate, self-reference, and circular dependency protection.
+4. Student enrollment through the admin shell until Phase 5 authentication exists.
+
+### Backend Work Completed
+- Added API contracts for semesters, course offerings, prerequisites, enrollments, available offerings, and missing prerequisites.
+- Added repositories and services for:
+  - Semester CRUD and current-semester selection.
+  - Course offering CRUD with validation for course, semester, instructor, duplicate offering keys, and capacity below current enrollment.
+  - Prerequisite add/remove/list workflows with circular dependency checks.
+  - Enrollment listing, available offering eligibility checks, and enrollment creation.
+- Added endpoints:
+  - `/api/semesters` full CRUD plus `/api/semesters/{id}/current`.
+  - `/api/course-offerings` full CRUD with optional semester filtering.
+  - `/api/courses/{courseId}/prerequisites` list/add/remove.
+  - `/api/enrollments` list by student and create enrollment.
+  - `/api/enrollments/available` eligibility-aware available offerings by student and semester.
+- Added `Configuration` EF mapping so enrollment can read `pass_fail_cutoff`, defaulting to 50 when absent.
+- Enrollment now rejects inactive students, inactive/cancelled offerings, duplicates, full offerings, and missing prerequisites.
+- Enrollment reconciles `CourseOffering.current_enrollment` from active enrollments after insert, avoiding double-counting with the existing SQL trigger.
+
+### Frontend Work Completed
+- Added admin routes and navigation for Semesters, Offerings, Prerequisites, and Enrollments.
+- Added semester forms, current-semester action, offering forms with seat counts, prerequisite management, and an enrollment workflow with student and semester pickers.
+- Enrollment UI displays eligibility, seat availability, missing prerequisites, and enrolled course records.
+- Extended frontend API client and TypeScript models for Phase 2 contracts.
+
+### Tests Added
+- Added `backend/GpaSystem.API.Tests` using xUnit and EF Core SQLite in-memory.
+- Covered successful enrollment, seat reconciliation, duplicate enrollment, full offering rejection, inactive student rejection, missing prerequisite rejection, passed prerequisite acceptance, invalid offering references, capacity below enrollment, and prerequisite self/duplicate/circular validation.
+
+### Verification Completed
+- `dotnet test backend/GpaSystem.API.Tests/GpaSystem.API.Tests.csproj` passes.
+- `dotnet build backend/GpaSystem.API/GpaSystem.API.csproj --no-restore` passes.
+- `npm run lint` in `frontend/gpa-frontend` passes.
+- `npm run build` in `frontend/gpa-frontend` passes.
 
 ---
 
 ## Phase 3: Grade Entry & Calculation PENDING
 
-**Status:** Blocked until Phase 2 complete  
+**Status:** Ready to start  
 **Expected Tasks:**
 1. Grade component entry.
 2. GPA/CGPA calculation engine.
@@ -143,4 +180,4 @@
 - Phase 1 now uses repository, service, DTO, and controller layers.
 - The existing SQL schema uses singular table names and snake_case columns, so explicit EF mapping is required for CRUD endpoints.
 - Department management is now part of Phase 1 to make the system usable from an empty database.
-- Course capacity is intentionally not added to `Course`; it remains tied to future course offerings.
+- Course capacity is intentionally not added to `Course`; it remains tied to `CourseOffering` and is enforced during enrollment.
