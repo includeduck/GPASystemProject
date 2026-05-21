@@ -69,6 +69,42 @@ internal static class ServiceFactory
             new SemesterRepository(db),
             new InstructorRepository(db));
     }
+
+    public static StudentService CreateStudentService(GpaSystemDbContext db)
+    {
+        return new StudentService(
+            db,
+            new StudentRepository(db),
+            new DepartmentRepository(db),
+            new CredentialService(db));
+    }
+
+    public static InstructorService CreateInstructorService(GpaSystemDbContext db)
+    {
+        return new InstructorService(
+            db,
+            new InstructorRepository(db),
+            new DepartmentRepository(db),
+            new CredentialService(db));
+    }
+
+    public static DepartmentService CreateDepartmentService(GpaSystemDbContext db)
+    {
+        return new DepartmentService(
+            new DepartmentRepository(db));
+    }
+
+    public static CourseService CreateCourseService(GpaSystemDbContext db)
+    {
+        return new CourseService(
+            new CourseRepository(db),
+            new DepartmentRepository(db));
+    }
+
+    public static CredentialService CreateCredentialService(GpaSystemDbContext db)
+    {
+        return new CredentialService(db);
+    }
 }
 
 internal sealed record SeededCatalog(

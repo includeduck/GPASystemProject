@@ -76,20 +76,18 @@
 - Moved API base URL to `VITE_API_BASE_URL` with a localhost fallback.
 
 ### Verification Completed
+- **Unit Tests Added**: Added 13 new unit tests in `backend/GpaSystem.API.Tests/Phase1ServiceTests.cs` to cover:
+  - `CredentialService`: Temporary username formatting, suffix checking during collisions, and secure PBKDF2 password hashing output format.
+  - `DepartmentService`: Code normalization, duplicate code prevention, and deletion rules preventing deletion of referenced departments.
+  - `StudentService`: Automatic unique student number generation (with sequential sequence and collision checking), duplicate email rejection, and status deactivation mapping.
+  - `InstructorService`: Secure registration, credential association, and deactivation constraints.
+  - `CourseService`: Department-based code auto-generation, manual code enforcement, conflict handling, and deletion blockers.
+- `dotnet test backend/GpaSystem.API.Tests/GpaSystem.API.Tests.csproj` passes cleanly with all Phase 1 tests green.
 - `dotnet build backend/GpaSystem.API/GpaSystem.API.csproj` passes.
-- `dotnet build backend/GpaSystem.API/GpaSystem.API.csproj --no-restore` passes.
-- `npm run lint` in `frontend/gpa-frontend` passes.
-- `npm run build` in `frontend/gpa-frontend` passes.
-- API smoke test against local SQL Server passed:
-  - Created a department.
-  - Created student, instructor, and course records using that department.
-  - Verified list/detail/update responses.
-  - Verified duplicate student email, instructor email, and course code conflicts return `409`.
-  - Verified student/instructor deactivation preserves records.
-  - Verified course deletion for an unreferenced course.
-  - Verified department deletion is blocked while records reference it.
-- UI smoke test passed in the browser across Departments, Students, Instructors, and Courses.
-- CORS now supports both `localhost` and `127.0.0.1` dev origins on ports `5173` and `3000`.
+- `npm run lint` and `npm run build` in `frontend/gpa-frontend` pass.
+- API smoke test against local SQL Server passed.
+- UI smoke test passed in the browser across all Phase 1 pages.
+- CORS supports both `localhost` and `127.0.0.1` dev origins on ports `5173` and `3000`.
 
 ### Deferred by Design
 - Authentication and authorization remain Phase 5.
@@ -136,12 +134,12 @@
 ### Tests Added
 - Added `backend/GpaSystem.API.Tests` using xUnit and EF Core SQLite in-memory.
 - Covered successful enrollment, seat reconciliation, duplicate enrollment, full offering rejection, inactive student rejection, missing prerequisite rejection, passed prerequisite acceptance, invalid offering references, capacity below enrollment, and prerequisite self/duplicate/circular validation.
+- Extensive test coverage now totals **22 unit tests** across Phase 1 and Phase 2.
 
 ### Verification Completed
-- `dotnet test backend/GpaSystem.API.Tests/GpaSystem.API.Tests.csproj` passes.
+- `dotnet test backend/GpaSystem.API.Tests/GpaSystem.API.Tests.csproj` passes successfully: **22/22 tests passed (100% success rate)**.
 - `dotnet build backend/GpaSystem.API/GpaSystem.API.csproj --no-restore` passes.
-- `npm run lint` in `frontend/gpa-frontend` passes.
-- `npm run build` in `frontend/gpa-frontend` passes.
+- `npm run lint` and `npm run build` in `frontend/gpa-frontend` pass cleanly.
 
 ---
 
