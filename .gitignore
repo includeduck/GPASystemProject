@@ -1,6 +1,8 @@
 # Backend (ASP.NET Core)
 backend/GpaSystem.API/bin/
 backend/GpaSystem.API/obj/
+backend/GpaSystem.API.Tests/bin/
+backend/GpaSystem.API.Tests/obj/
 backend/GpaSystem.API/appsettings.Development.json   # if it contains secrets
 *.user
 *.suo
