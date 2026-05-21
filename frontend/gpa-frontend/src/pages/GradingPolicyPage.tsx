@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Award, Plus, Save, Sliders, Trash2, ShieldAlert } from 'lucide-react';
 import { StatusBanner } from '../components/StatusBanner';
 import { EmptyState } from '../components/EmptyState';
@@ -14,60 +14,65 @@ export function GradingPolicyPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Validation messages
-  const [validationErrors, setValidationErrors] = useState<string[]>([]);
-
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const policyList = await gradingPolicyApi.list();
-      setPolicies(
-        policyList.map((p) => ({
-          policyId: p.policyId,
-          letterGrade: p.letterGrade,
-          minPercentage: p.minPercentage,
-          maxPercentage: p.maxPercentage,
-          gradePoint: p.gradePoint,
-          isActive: p.isActive,
-          effectiveFrom: p.effectiveFrom,
-        }))
-      );
-
-      const config = await gradingPolicyApi.getConfig();
-      setCutoff(config.pass_fail_cutoff);
-      setError(null);
-    } catch (err) {
-      setError(getApiErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    void loadData();
+    let ignore = false;
+
+    const loadInitialData = async () => {
+      try {
+        const [policyList, config] = await Promise.all([
+          gradingPolicyApi.list(),
+          gradingPolicyApi.getConfig(),
+        ]);
+
+        if (!ignore) {
+          setPolicies(
+            policyList.map((p) => ({
+              policyId: p.policyId,
+              letterGrade: p.letterGrade,
+              minPercentage: p.minPercentage,
+              maxPercentage: p.maxPercentage,
+              gradePoint: p.gradePoint,
+              isActive: p.isActive,
+              effectiveFrom: p.effectiveFrom,
+            }))
+          );
+          setCutoff(config.pass_fail_cutoff);
+          setError(null);
+        }
+      } catch (err) {
+        if (!ignore) {
+          setError(getApiErrorMessage(err));
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadInitialData();
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
-  // Recalculate validation errors on policies change
-  useEffect(() => {
+  const validationErrors = useMemo(() => {
     if (policies.length === 0) {
-      setValidationErrors(['At least one grading policy is required.']);
-      return;
+      return ['At least one grading policy is required.'];
     }
 
     const errors: string[] = [];
     const sorted = [...policies].sort((a, b) => a.minPercentage - b.minPercentage);
 
-    // 1. Minimum of first range must be 0
     if (sorted[0].minPercentage !== 0) {
       errors.push(`First range must start at 0% (currently starts at ${sorted[0].minPercentage}%).`);
     }
 
-    // 2. Maximum of last range must be 100
     if (sorted[sorted.length - 1].maxPercentage !== 100) {
       errors.push(`Last range must end at 100% (currently ends at ${sorted[sorted.length - 1].maxPercentage}%).`);
     }
 
-    // 3. Contiguous and non-overlapping check
     for (let i = 0; i < sorted.length; i++) {
       const p = sorted[i];
       if (p.minPercentage >= p.maxPercentage) {
@@ -90,7 +95,7 @@ export function GradingPolicyPage() {
       }
     }
 
-    setValidationErrors(errors);
+    return errors;
   }, [policies]);
 
   const handlePolicyChange = (index: number, field: keyof UpdateGradingPolicyRequest, value: unknown) => {

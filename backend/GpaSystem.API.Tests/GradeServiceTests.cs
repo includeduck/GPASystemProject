@@ -14,6 +14,48 @@ namespace GpaSystem.API.Tests;
 public class GradeServiceTests
 {
     [Fact]
+    public async Task RecordMarks_FailsIfOfferingFinalized()
+    {
+        await using var database = await TestDatabase.CreateAsync();
+        var db = database.Context;
+        var catalog = await TestData.SeedCatalogAsync(db);
+
+        catalog.Offering.IsGradeFinalized = true;
+        await db.SaveChangesAsync();
+
+        var component = new GradeComponent
+        {
+            OfferingId = catalog.Offering.OfferingId,
+            ComponentName = "Quiz",
+            MaxPoints = 10,
+            SortOrder = 1
+        };
+        db.GradeComponents.Add(component);
+
+        var enrollment = new Enrollment
+        {
+            StudentId = catalog.Student.StudentId,
+            OfferingId = catalog.Offering.OfferingId,
+            Status = "ENROLLED"
+        };
+        db.Enrollments.Add(enrollment);
+        await db.SaveChangesAsync();
+
+        var service = ServiceFactory.CreateGradeService(db);
+
+        var ex = await Assert.ThrowsAsync<ApiException>(() => service.RecordMarksAsync(
+            catalog.Offering.OfferingId,
+            new List<RecordGradeEntryRequest>
+            {
+                new() { EnrollmentId = enrollment.EnrollmentId, ComponentId = component.ComponentId, ObtainedMarks = 8 }
+            },
+            catalog.Instructor.InstructorId));
+
+        Assert.Equal(400, ex.StatusCode);
+        Assert.Contains("finalized", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task CreateComponent_FailsIfOfferingFinalized()
     {
         await using var database = await TestDatabase.CreateAsync();

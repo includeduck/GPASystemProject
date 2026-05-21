@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -51,35 +51,45 @@ export function StudentDashboardPage() {
   const [allStudents, setAllStudents] = useState<Student[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await studentResultsApi.getDashboard(studentId);
-      setData(result);
-      // Auto-expand latest semester
-      if (result.semesters.length > 0) {
-        const latest = result.semesters[result.semesters.length - 1];
-        setExpandedSemesters({ [latest.semesterId]: true });
-      }
-    } catch (err) {
-      setError(getApiErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  }, [studentId]);
-
   useEffect(() => {
-    if (studentId) {
-      void loadData();
-    } else {
-      setLoading(true);
-      studentApi.list()
-        .then(setAllStudents)
-        .catch((err) => setError(getApiErrorMessage(err)))
-        .finally(() => setLoading(false));
-    }
-  }, [studentId, loadData]);
+    let ignore = false;
+
+    const loadInitialData = async () => {
+      try {
+        if (studentId) {
+          const result = await studentResultsApi.getDashboard(studentId);
+          if (!ignore) {
+            setData(result);
+            if (result.semesters.length > 0) {
+              const latest = result.semesters[result.semesters.length - 1];
+              setExpandedSemesters({ [latest.semesterId]: true });
+            }
+            setError(null);
+          }
+        } else {
+          const students = await studentApi.list();
+          if (!ignore) {
+            setAllStudents(students);
+            setError(null);
+          }
+        }
+      } catch (err) {
+        if (!ignore) {
+          setError(getApiErrorMessage(err));
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadInitialData();
+
+    return () => {
+      ignore = true;
+    };
+  }, [studentId]);
 
   const toggleSemester = (semId: number) => {
     setExpandedSemesters((prev) => ({ ...prev, [semId]: !prev[semId] }));

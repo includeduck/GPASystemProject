@@ -143,13 +143,24 @@
 
 ---
 
-## Phase 3: Grade Entry & Calculation PENDING
+## Phase 3: Grade Entry & Calculation COMPLETED
 
-**Status:** Ready to start  
-**Expected Tasks:**
-1. Grade component entry.
-2. GPA/CGPA calculation engine.
-3. Grading policy management.
+**Status:** Implemented, tested, and demo seed available  
+**Date Completed:** May 21, 2026
+
+### Scope Delivered
+1. Grade component entry and mark recording (gradebook workflow).
+2. GPA/CGPA calculation engine with repeat-attempt handling.
+3. Grading policy management and pass/fail cutoff configuration.
+4. Grade finalization with offering lock and student notifications.
+
+### Tests
+- **49** backend unit tests passing (includes grading policy, GPA calculator, grade service, and semester service coverage).
+- Frontend lint and production build pass.
+
+### Demo Data
+- Development endpoint: `POST /api/admin/seed-demo` (idempotent; requires existing student, instructor, and course).
+- SQL helper: `SystemInfo/SeedDemoData.sql` for pass/fail cutoff configuration.
 
 ---
 

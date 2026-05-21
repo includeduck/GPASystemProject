@@ -45,6 +45,7 @@ builder.Services.AddScoped<IGradingStrategy, StandardGradingStrategy>();
 builder.Services.AddScoped<IGpaCalculatorService, GpaCalculatorService>();
 builder.Services.AddScoped<IGradeService, GradeService>();
 builder.Services.AddScoped<IGradingPolicyService, GradingPolicyService>();
+builder.Services.AddScoped<DemoDataSeeder>();
 
 // Add CORS
 builder.Services.AddCors(options =>

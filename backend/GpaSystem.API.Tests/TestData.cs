@@ -136,6 +136,11 @@ internal static class ServiceFactory
             db,
             new GradingPolicyRepository(db));
     }
+
+    public static SemesterService CreateSemesterService(GpaSystemDbContext db)
+    {
+        return new SemesterService(new SemesterRepository(db));
+    }
 }
 
 internal sealed record SeededCatalog(

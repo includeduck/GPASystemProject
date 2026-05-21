@@ -97,16 +97,49 @@ export function GradebookPage() {
   }, [offeringId]);
 
   useEffect(() => {
-    if (offeringId) {
-      void loadData();
-    } else {
-      setLoading(true);
-      courseOfferingApi.list()
-        .then(setAllOfferings)
-        .catch((err) => setError(getApiErrorMessage(err)))
-        .finally(() => setLoading(false));
-    }
-  }, [offeringId, loadData]);
+    let ignore = false;
+
+    const loadInitialData = async () => {
+      try {
+        if (offeringId) {
+          const [allOfferings, comps, ros] = await Promise.all([
+            courseOfferingApi.list(),
+            gradeComponentApi.list(offeringId),
+            gradeEntryApi.getRoster(offeringId),
+          ]);
+
+          if (!ignore) {
+            setOffering(allOfferings.find((o) => o.offeringId === offeringId) ?? null);
+            setComponents(comps);
+            setRoster(ros);
+            setDirtyMarks({});
+            setMarkErrors({});
+            setError(null);
+          }
+        } else {
+          const offerings = await courseOfferingApi.list();
+          if (!ignore) {
+            setAllOfferings(offerings);
+            setError(null);
+          }
+        }
+      } catch (err) {
+        if (!ignore) {
+          setError(getApiErrorMessage(err));
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadInitialData();
+
+    return () => {
+      ignore = true;
+    };
+  }, [offeringId]);
 
   /* ─── derived ─── */
   const isLocked = offering?.isGradeFinalized ?? false;

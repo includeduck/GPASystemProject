@@ -205,7 +205,7 @@ public class GpaSystemDbContext : DbContext
 
         modelBuilder.Entity<Enrollment>(entity =>
         {
-            entity.ToTable("Enrollment");
+            entity.ToTable("Enrollment", table => table.UseSqlOutputClause(false));
             entity.HasKey(e => e.EnrollmentId);
             entity.Property(e => e.EnrollmentId).HasColumnName("enrollment_id");
             entity.Property(e => e.StudentId).HasColumnName("student_id");
@@ -243,7 +243,7 @@ public class GpaSystemDbContext : DbContext
 
         modelBuilder.Entity<GradeEntry>(entity =>
         {
-            entity.ToTable("GradeEntry");
+            entity.ToTable("GradeEntry", table => table.UseSqlOutputClause(false));
             entity.HasKey(e => e.GradeEntryId);
             entity.Property(e => e.GradeEntryId).HasColumnName("grade_entry_id");
             entity.Property(e => e.EnrollmentId).HasColumnName("enrollment_id");
