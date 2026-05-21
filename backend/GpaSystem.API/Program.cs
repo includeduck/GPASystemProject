@@ -42,6 +42,8 @@ builder.Services.AddScoped<IPrerequisiteService, PrerequisiteService>();
 builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 
 builder.Services.AddScoped<IGradingStrategy, StandardGradingStrategy>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IReportExportService, ReportExportService>();
 builder.Services.AddScoped<IGpaCalculatorService, GpaCalculatorService>();
 builder.Services.AddScoped<IGradeService, GradeService>();
 builder.Services.AddScoped<IGradingPolicyService, GradingPolicyService>();

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Pencil, Plus, Save, UserX, X, GraduationCap } from 'lucide-react';
@@ -7,7 +7,7 @@ import { CredentialsPanel } from '../components/CredentialsPanel';
 import { EmptyState } from '../components/EmptyState';
 import { StatusBanner } from '../components/StatusBanner';
 import { departmentApi, getApiErrorMessage, studentApi } from '../services/api';
-import type { Department, Student, StudentForm, TemporaryCredentials } from '../types/models';
+import type { Department, Student, StudentForm, StudentListItem, TemporaryCredentials } from '../types/models';
 import { formatDate, todayInputValue } from '../utils/dates';
 
 type StudentFormState = {
@@ -30,7 +30,12 @@ const emptyForm: StudentFormState = {
 
 export function StudentsPage() {
   const navigate = useNavigate();
-  const [students, setStudents] = useState<Student[]>([]);
+  const [students, setStudents] = useState<StudentListItem[]>([]);
+  const [search, setSearch] = useState('');
+  const [filterDept, setFilterDept] = useState('');
+  const [sortBy, setSortBy] = useState<'name' | 'studentNumber' | 'cgpa'>('name');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [totalCount, setTotalCount] = useState(0);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [form, setForm] = useState<StudentFormState>(emptyForm);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -41,42 +46,35 @@ export function StudentsPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const loadData = async () => {
+  const fetchStudents = useCallback(async () => {
     setLoading(true);
     try {
-      const [studentsData, departmentsData] = await Promise.all([
-        studentApi.list(),
-        departmentApi.list(),
-      ]);
-      setStudents(studentsData);
-      setDepartments(departmentsData);
+      const result = await studentApi.search({
+        search: search.trim() || undefined,
+        departmentId: filterDept ? Number(filterDept) : undefined,
+        sortBy,
+        sortDir,
+        page: 1,
+        pageSize: 100,
+      });
+      setStudents(result.items);
+      setTotalCount(result.totalCount);
       setError(null);
-
-      if (!editingId && !form.departmentId && departmentsData[0]) {
-        setForm((current) => ({ ...current, departmentId: String(departmentsData[0].departmentId) }));
-      }
     } catch (err) {
       setError(getApiErrorMessage(err));
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, filterDept, sortBy, sortDir]);
 
   useEffect(() => {
     let ignore = false;
-
-    const loadInitialData = async () => {
+    void (async () => {
       try {
-        const [studentsData, departmentsData] = await Promise.all([
-          studentApi.list(),
-          departmentApi.list(),
-        ]);
-
+        const departmentsData = await departmentApi.list();
         if (!ignore) {
-          setStudents(studentsData);
           setDepartments(departmentsData);
           setError(null);
-
           if (departmentsData[0]) {
             setForm((current) => ({
               ...current,
@@ -85,22 +83,18 @@ export function StudentsPage() {
           }
         }
       } catch (err) {
-        if (!ignore) {
-          setError(getApiErrorMessage(err));
-        }
-      } finally {
-        if (!ignore) {
-          setLoading(false);
-        }
+        if (!ignore) setError(getApiErrorMessage(err));
       }
-    };
-
-    void loadInitialData();
-
-    return () => {
-      ignore = true;
-    };
+    })();
+    return () => { ignore = true; };
   }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      void fetchStudents();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [fetchStudents]);
 
   const resetForm = () => {
     setForm({
@@ -141,7 +135,7 @@ export function StudentsPage() {
       }
 
       resetForm();
-      await loadData();
+      await fetchStudents();
     } catch (err) {
       setError(getApiErrorMessage(err));
     } finally {
@@ -173,7 +167,7 @@ export function StudentsPage() {
       await studentApi.deactivate(deactivateTarget.studentId);
       setDeactivateTarget(null);
       setSuccess('Student deactivated.');
-      await loadData();
+      await fetchStudents();
     } catch (err) {
       setDeactivateTarget(null);
       setError(getApiErrorMessage(err));
@@ -286,11 +280,52 @@ export function StudentsPage() {
         </div>
       </form>
 
+      <div className="form-panel" style={{ marginBottom: '1rem' }}>
+        <div className="form-grid form-grid--two">
+          <label>
+            <span>Search (name or ID)</span>
+            <input
+              type="search"
+              placeholder="Search students..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </label>
+          <label>
+            <span>Department</span>
+            <select value={filterDept} onChange={(e) => setFilterDept(e.target.value)}>
+              <option value="">All departments</option>
+              {departments.map((d) => (
+                <option key={d.departmentId} value={d.departmentId}>{d.departmentCode}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>Sort by</span>
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)}>
+              <option value="name">Name</option>
+              <option value="studentNumber">Student ID</option>
+              <option value="cgpa">CGPA</option>
+            </select>
+          </label>
+          <label>
+            <span>Order</span>
+            <select value={sortDir} onChange={(e) => setSortDir(e.target.value as typeof sortDir)}>
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+          </label>
+        </div>
+        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+          Showing {students.length} of {totalCount} students
+        </p>
+      </div>
+
       <div className="table-panel">
         {loading ? (
           <EmptyState title="Loading students" />
         ) : students.length === 0 ? (
-          <EmptyState title="No students yet" />
+          <EmptyState title="No students match your search" />
         ) : (
           <div className="table-wrap">
             <table>
@@ -299,6 +334,7 @@ export function StudentsPage() {
                   <th>Student</th>
                   <th>Email</th>
                   <th>Department</th>
+                  <th>CGPA</th>
                   <th>Enrollment</th>
                   <th>Status</th>
                   <th className="table-actions">Actions</th>
@@ -318,6 +354,12 @@ export function StudentsPage() {
                     <td>
                       {student.departmentCode}
                       <span>{student.departmentName}</span>
+                    </td>
+                    <td>
+                      <strong>{student.cgpa.toFixed(2)}</strong>
+                      {student.latestSemesterName && (
+                        <span>{student.latestSemesterName}</span>
+                      )}
                     </td>
                     <td>{formatDate(student.enrollmentDate)}</td>
                     <td>

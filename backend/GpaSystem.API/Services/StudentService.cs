@@ -31,6 +31,18 @@ public class StudentService : IStudentService
         return students.Select(Map).ToList();
     }
 
+    public async Task<PagedResult<StudentListItemResponse>> SearchAsync(StudentSearchQuery query)
+    {
+        var (items, totalCount) = await _students.SearchAsync(query);
+        return new PagedResult<StudentListItemResponse>
+        {
+            Items = items,
+            Page = Math.Max(1, query.Page),
+            PageSize = Math.Clamp(query.PageSize, 1, 100),
+            TotalCount = totalCount
+        };
+    }
+
     public async Task<StudentResponse> GetByIdAsync(int id)
     {
         var student = await FindStudentAsync(id);

@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
   BarChart3,
+  Download,
+  FileDown,
   BookOpen,
   ChevronDown,
   ChevronRight,
@@ -15,7 +17,7 @@ import {
 } from 'lucide-react';
 import { StatusBanner } from '../components/StatusBanner';
 import { EmptyState } from '../components/EmptyState';
-import { studentResultsApi, getApiErrorMessage, studentApi } from '../services/api';
+import { studentResultsApi, getApiErrorMessage, studentApi, reportApi } from '../services/api';
 import type { StudentDashboardResponse, SemesterResultResponse, Student } from '../types/models';
 
 /* ────────────────────────────── helpers ────────────────────────────── */
@@ -194,7 +196,7 @@ export function StudentDashboardPage() {
     data?.semesters.flatMap((s) => s.courses.filter((c) => c.isRepeatedAttempt)) ?? [];
 
   return (
-    <section className="page" style={{ maxWidth: 1200 }}>
+    <section className="page transcript-page" style={{ maxWidth: 1200 }}>
       {/* Header */}
       <div className="page__header">
         <div>
@@ -218,6 +220,24 @@ export function StudentDashboardPage() {
             </p>
           )}
         </div>
+        {studentId > 0 && (
+          <div className="form-actions" style={{ gap: 8 }}>
+            <button
+              className="button button--secondary"
+              type="button"
+              onClick={() => reportApi.downloadTranscriptCsv(studentId)}
+            >
+              <Download size={17} /> Export CSV
+            </button>
+            <button
+              className="button button--secondary"
+              type="button"
+              onClick={() => reportApi.downloadTranscriptPdf(studentId)}
+            >
+              <FileDown size={17} /> Export PDF
+            </button>
+          </div>
+        )}
       </div>
 
       {error && <StatusBanner tone="error">{error}</StatusBanner>}

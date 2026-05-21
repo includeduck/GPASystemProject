@@ -31,6 +31,17 @@ public class AcademicRecordRepository : IAcademicRecordRepository
             .ToListAsync();
     }
 
+    public Task<List<AcademicRecord>> GetForSemesterAsync(int semesterId)
+    {
+        return _db.AcademicRecords
+            .Where(ar => ar.SemesterId == semesterId)
+            .Include(ar => ar.Student)
+                .ThenInclude(s => s.Department)
+            .Include(ar => ar.Semester)
+            .OrderBy(ar => ar.Student.StudentNumber)
+            .ToListAsync();
+    }
+
     public Task AddAsync(AcademicRecord record)
     {
         return _db.AcademicRecords.AddAsync(record).AsTask();

@@ -18,19 +18,22 @@ public class GpaCalculatorService : IGpaCalculatorService
     private readonly IAcademicRecordRepository _academicRecords;
     private readonly IStudentRepository _students;
     private readonly ISemesterRepository _semesters;
+    private readonly IReportService _reports;
 
     public GpaCalculatorService(
         GpaSystemDbContext db,
         ICourseGradeRepository courseGrades,
         IAcademicRecordRepository academicRecords,
         IStudentRepository students,
-        ISemesterRepository semesters)
+        ISemesterRepository semesters,
+        IReportService reports)
     {
         _db = db;
         _courseGrades = courseGrades;
         _academicRecords = academicRecords;
         _students = students;
         _semesters = semesters;
+        _reports = reports;
     }
 
     public async Task RecalculateStudentGpaAndCgpaAsync(int studentId)
@@ -167,86 +170,8 @@ public class GpaCalculatorService : IGpaCalculatorService
         await _db.SaveChangesAsync();
     }
 
-    public async Task<StudentDashboardResponse> GetStudentDashboardAsync(int studentId)
-    {
-        var student = await _students.GetByIdAsync(studentId)
-            ?? throw ApiException.NotFound($"Student with ID {studentId} was not found.");
-
-        var records = await _academicRecords.GetForStudentAsync(studentId);
-        var allGrades = await _db.CourseGrades
-            .Where(cg => cg.Enrollment.StudentId == studentId && cg.Enrollment.Status == "COMPLETED")
-            .Include(cg => cg.Enrollment)
-                .ThenInclude(e => e.CourseOffering)
-                    .ThenInclude(co => co.Course)
-            .Include(cg => cg.Enrollment)
-                .ThenInclude(e => e.CourseOffering)
-                    .ThenInclude(co => co.Semester)
-            .ToListAsync();
-
-        // Current CGPA is from the latest academic record chronologically
-        var latestRecord = records.OrderByDescending(r => r.Semester.StartDate).FirstOrDefault();
-        var cgpa = latestRecord?.CumulativeGpa ?? 0.00m;
-
-        // Total Credits Attempted (sum of credit hours of non-repeated COMPLETED course grades)
-        var activeGrades = allGrades.Where(g => !g.IsRepeatedAttempt).ToList();
-        var totalAttempted = activeGrades.Sum(g => (int)g.Enrollment.CourseOffering.Course.CreditHours);
-
-        // Total Credits Earned (sum of credit hours of non-repeated passing courses, grade point > 0)
-        var totalEarned = activeGrades
-            .Where(g => g.GradePoints > 0m)
-            .Sum(g => (int)g.Enrollment.CourseOffering.Course.CreditHours);
-
-        var semesterResponses = new List<SemesterResultResponse>();
-
-        foreach (var record in records.OrderBy(r => r.Semester.StartDate))
-        {
-            var semGrades = allGrades
-                .Where(g => g.Enrollment.CourseOffering.SemesterId == record.SemesterId)
-                .ToList();
-
-            var semActiveGrades = semGrades.Where(g => !g.IsRepeatedAttempt).ToList();
-            var semCreditsEarned = semActiveGrades
-                .Where(g => g.GradePoints > 0m)
-                .Sum(g => (int)g.Enrollment.CourseOffering.Course.CreditHours);
-
-            var courseResponses = semGrades.Select(g => new StudentCourseGradeResponse
-            {
-                CourseId = g.Enrollment.CourseOffering.CourseId,
-                CourseCode = g.Enrollment.CourseOffering.Course.CourseCode,
-                CourseTitle = g.Enrollment.CourseOffering.Course.CourseTitle,
-                CreditHours = g.Enrollment.CourseOffering.Course.CreditHours,
-                TotalObtained = g.TotalObtained,
-                MaxPossible = g.MaxPossible,
-                Percentage = g.Percentage,
-                LetterGrade = g.LetterGrade,
-                GradePoints = g.GradePoints,
-                IsRepeatedAttempt = g.IsRepeatedAttempt,
-                Status = g.GradePoints > 0m ? "PASSED" : "FAILED"
-            }).ToList();
-
-            semesterResponses.Add(new SemesterResultResponse
-            {
-                SemesterId = record.SemesterId,
-                SemesterName = record.Semester.SemesterName,
-                GPA = record.SemesterGpa,
-                CGPA = record.CumulativeGpa,
-                CreditsAttempted = record.TotalCreditsAttempted,
-                CreditsEarned = semCreditsEarned,
-                Courses = courseResponses
-            });
-        }
-
-        return new StudentDashboardResponse
-        {
-            StudentId = student.StudentId,
-            FullName = student.FullName,
-            StudentNumber = student.StudentNumber,
-            CGPA = cgpa,
-            TotalCreditsAttempted = totalAttempted,
-            TotalCreditsEarned = totalEarned,
-            Semesters = semesterResponses
-        };
-    }
+    public Task<StudentDashboardResponse> GetStudentDashboardAsync(int studentId) =>
+        _reports.GetStudentDashboardAsync(studentId);
 
     private static decimal CalculateCgpa(List<CourseGrade> activeGrades)
     {

@@ -106,6 +106,17 @@ internal static class ServiceFactory
         return new CredentialService(db);
     }
 
+    public static ReportService CreateReportService(GpaSystemDbContext db)
+    {
+        return new ReportService(
+            db,
+            new StudentRepository(db),
+            new AcademicRecordRepository(db),
+            new SemesterRepository(db),
+            new DepartmentRepository(db),
+            new CourseRepository(db));
+    }
+
     public static GpaCalculatorService CreateGpaCalculatorService(GpaSystemDbContext db)
     {
         return new GpaCalculatorService(
@@ -113,7 +124,8 @@ internal static class ServiceFactory
             new CourseGradeRepository(db),
             new AcademicRecordRepository(db),
             new StudentRepository(db),
-            new SemesterRepository(db));
+            new SemesterRepository(db),
+            CreateReportService(db));
     }
 
     public static GradeService CreateGradeService(GpaSystemDbContext db)

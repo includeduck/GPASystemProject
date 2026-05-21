@@ -25,6 +25,15 @@ import type {
   RosterGradeResponse,
   RecordGradeEntryRequest,
   StudentDashboardResponse,
+  PagedResult,
+  StudentListItem,
+  StudentSearchParams,
+  TranscriptResponse,
+  SemesterResultsReport,
+  CoursePerformanceReport,
+  DepartmentPerformanceReport,
+  WarningListReport,
+  ClassRankingsReport,
 } from '../types/models';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5273/api';
@@ -104,9 +113,22 @@ export const departmentApi = {
   },
 };
 
+const downloadFile = (blob: Blob, fileName: string) => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  link.click();
+  URL.revokeObjectURL(url);
+};
+
 export const studentApi = {
   list: async (): Promise<Student[]> => {
     const response = await apiClient.get('/students');
+    return response.data;
+  },
+  search: async (params: StudentSearchParams): Promise<PagedResult<StudentListItem>> => {
+    const response = await apiClient.get('/students', { params });
     return response.data;
   },
   create: async (payload: StudentForm): Promise<CreateStudentResponse> => {
@@ -302,6 +324,90 @@ export const studentResultsApi = {
   getDashboard: async (studentId: number): Promise<StudentDashboardResponse> => {
     const response = await apiClient.get(`/students/${studentId}/results`);
     return response.data;
+  },
+};
+
+export const reportApi = {
+  getTranscript: async (studentId: number): Promise<TranscriptResponse> => {
+    const response = await apiClient.get(`/reports/transcript/${studentId}`);
+    return response.data;
+  },
+  getSemesterResults: async (semesterId: number): Promise<SemesterResultsReport> => {
+    const response = await apiClient.get(`/reports/semester/${semesterId}`);
+    return response.data;
+  },
+  getCoursePerformance: async (courseId: number, semesterId?: number): Promise<CoursePerformanceReport> => {
+    const response = await apiClient.get(`/reports/course/${courseId}`, {
+      params: semesterId ? { semesterId } : undefined,
+    });
+    return response.data;
+  },
+  getDepartmentPerformance: async (
+    departmentId: number,
+    semesterId?: number,
+  ): Promise<DepartmentPerformanceReport> => {
+    const response = await apiClient.get(`/reports/department/${departmentId}`, {
+      params: semesterId ? { semesterId } : undefined,
+    });
+    return response.data;
+  },
+  getWarnings: async (semesterId: number, threshold?: number): Promise<WarningListReport> => {
+    const response = await apiClient.get('/reports/warnings', {
+      params: { semesterId, threshold },
+    });
+    return response.data;
+  },
+  getRankings: async (departmentId?: number, semesterId?: number): Promise<ClassRankingsReport> => {
+    const response = await apiClient.get('/reports/rankings', {
+      params: { departmentId, semesterId },
+    });
+    return response.data;
+  },
+  downloadTranscriptCsv: async (studentId: number) => {
+    const response = await apiClient.get(`/reports/transcript/${studentId}/export.csv`, {
+      responseType: 'blob',
+    });
+    downloadFile(response.data, `transcript-${studentId}.csv`);
+  },
+  downloadTranscriptPdf: async (studentId: number) => {
+    const response = await apiClient.get(`/reports/transcript/${studentId}/export.pdf`, {
+      responseType: 'blob',
+    });
+    downloadFile(response.data, `transcript-${studentId}.pdf`);
+  },
+  downloadSemesterCsv: async (semesterId: number) => {
+    const response = await apiClient.get(`/reports/semester/${semesterId}/export.csv`, {
+      responseType: 'blob',
+    });
+    downloadFile(response.data, `semester-${semesterId}.csv`);
+  },
+  downloadWarningsCsv: async (semesterId: number, threshold?: number) => {
+    const response = await apiClient.get('/reports/warnings/export.csv', {
+      params: { semesterId, threshold },
+      responseType: 'blob',
+    });
+    downloadFile(response.data, `warnings-${semesterId}.csv`);
+  },
+  downloadRankingsCsv: async (departmentId?: number, semesterId?: number) => {
+    const response = await apiClient.get('/reports/rankings/export.csv', {
+      params: { departmentId, semesterId },
+      responseType: 'blob',
+    });
+    downloadFile(response.data, 'rankings.csv');
+  },
+  downloadCourseCsv: async (courseId: number, semesterId?: number) => {
+    const response = await apiClient.get(`/reports/course/${courseId}/export.csv`, {
+      params: semesterId ? { semesterId } : undefined,
+      responseType: 'blob',
+    });
+    downloadFile(response.data, `course-${courseId}.csv`);
+  },
+  downloadDepartmentCsv: async (departmentId: number, semesterId?: number) => {
+    const response = await apiClient.get(`/reports/department/${departmentId}/export.csv`, {
+      params: semesterId ? { semesterId } : undefined,
+      responseType: 'blob',
+    });
+    downloadFile(response.data, `department-${departmentId}.csv`);
   },
 };
 

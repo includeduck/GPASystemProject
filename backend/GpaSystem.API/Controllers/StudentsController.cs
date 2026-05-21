@@ -18,9 +18,40 @@ public class StudentsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<StudentResponse>>> GetAll()
+    public async Task<ActionResult> GetAll(
+        [FromQuery] string? search,
+        [FromQuery] int? departmentId,
+        [FromQuery] string? status,
+        [FromQuery] string? sortBy,
+        [FromQuery] string? sortDir,
+        [FromQuery] int? page,
+        [FromQuery] int? pageSize)
     {
-        return Ok(await _students.GetAllAsync());
+        var hasQuery = !string.IsNullOrWhiteSpace(search)
+            || departmentId.HasValue
+            || !string.IsNullOrWhiteSpace(status)
+            || page.HasValue
+            || pageSize.HasValue
+            || !string.IsNullOrWhiteSpace(sortBy)
+            || !string.IsNullOrWhiteSpace(sortDir);
+
+        if (!hasQuery)
+        {
+            return Ok(await _students.GetAllAsync());
+        }
+
+        var query = new StudentSearchQuery
+        {
+            Search = search,
+            DepartmentId = departmentId,
+            Status = status,
+            SortBy = sortBy ?? "name",
+            SortDir = sortDir ?? "asc",
+            Page = page ?? 1,
+            PageSize = pageSize ?? 25
+        };
+
+        return Ok(await _students.SearchAsync(query));
     }
 
     [HttpGet("{id:int}")]

@@ -508,3 +508,25 @@ tr:last-child td {
     grid-template-columns: 1fr;
   }
 }
+
+@media print {
+  .sidebar,
+  .nav-list,
+  .page__header .icon-button,
+  .form-actions,
+  .status-banner {
+    display: none !important;
+  }
+
+  .workspace {
+    padding: 0;
+  }
+
+  .transcript-page {
+    max-width: none !important;
+  }
+
+  .transcript-page table {
+    font-size: 11px;
+  }
+}

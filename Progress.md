@@ -164,13 +164,34 @@
 
 ---
 
-## Phase 4: Reporting & Searching PENDING
+## Phase 4: Reporting & Searching COMPLETED
 
-**Status:** Blocked until Phase 3 complete  
-**Expected Tasks:**
-1. Transcript generation.
-2. Search and filter functionality.
-3. Report export (CSV/PDF).
+**Status:** Implemented, tested, and UI wired  
+**Date Completed:** May 21, 2026
+
+### Scope Delivered
+1. **Formal reports (FR-031–035, FR-040):** transcript, semester results, course performance, department performance, warning list, class rankings via `ReportsController` and `ReportService`.
+2. **Student search (FR-036–039):** search by name/number, department filter, sort by name/student ID/CGPA, pagination on `GET /api/students`.
+3. **Export (FR-052–053):** CSV for all report types; PDF for transcript via QuestPDF (`ReportExportService`).
+4. **Frontend:** Reports hub and five report pages; Students page search/filter/sort with CGPA column; transcript export buttons on academic record page.
+
+### API Endpoints
+- `GET /api/reports/transcript/{studentId}`
+- `GET /api/reports/semester/{semesterId}`
+- `GET /api/reports/course/{courseId}?semesterId=`
+- `GET /api/reports/department/{departmentId}?semesterId=`
+- `GET /api/reports/warnings?semesterId=&threshold=`
+- `GET /api/reports/rankings?departmentId=&semesterId=`
+- Export: `.../export.csv` and transcript `.../export.pdf`
+- `GET /api/students?search=&departmentId=&sortBy=&sortDir=&page=&pageSize=`
+
+### Tests
+- **57** backend unit tests (includes `ReportServiceTests`, `StudentSearchServiceTests`, `ReportExportServiceTests`).
+- `dotnet test`, `npm run lint`, and `npm run build` pass.
+
+### Frontend Routes
+- `/reports`, `/reports/semester`, `/reports/course`, `/reports/department`, `/reports/warnings`, `/reports/rankings`
+- `/student-results/:studentId` (transcript + CSV/PDF export)
 
 ---
 

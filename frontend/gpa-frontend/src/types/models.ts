@@ -315,3 +315,125 @@ export interface StudentDashboardResponse {
   semesters: SemesterResultResponse[];
 }
 
+export interface PagedResult<T> {
+  items: T[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+}
+
+export interface StudentListItem extends Student {
+  cgpa: number;
+  latestSemesterName?: string | null;
+}
+
+export interface StudentSearchParams {
+  search?: string;
+  departmentId?: number;
+  status?: string;
+  sortBy?: 'name' | 'studentNumber' | 'cgpa';
+  sortDir?: 'asc' | 'desc';
+  page?: number;
+  pageSize?: number;
+}
+
+export interface TranscriptResponse extends StudentDashboardResponse {
+  departmentCode: string;
+  departmentName: string;
+  enrollmentDate: string;
+  generatedAt: string;
+  failedCourses: StudentCourseGradeResponse[];
+}
+
+export interface SemesterStudentResult {
+  studentId: number;
+  studentNumber: string;
+  fullName: string;
+  departmentCode: string;
+  semesterGpa: number;
+  cumulativeGpa: number;
+  creditsAttempted: number;
+  courses: StudentCourseGradeResponse[];
+}
+
+export interface SemesterResultsReport {
+  semesterId: number;
+  semesterName: string;
+  students: SemesterStudentResult[];
+}
+
+export interface CourseOfferingPerformance {
+  offeringId: number;
+  semesterName: string;
+  instructorName: string;
+  enrollmentCount: number;
+  averagePercentage: number;
+}
+
+export interface CoursePerformanceReport {
+  courseId: number;
+  courseCode: string;
+  courseTitle: string;
+  semesterId?: number | null;
+  semesterName?: string | null;
+  totalEnrollments: number;
+  passedCount: number;
+  failedCount: number;
+  averagePercentage: number;
+  offerings: CourseOfferingPerformance[];
+}
+
+export interface DepartmentStudentSummary {
+  studentId: number;
+  studentNumber: string;
+  fullName: string;
+  semesterGpa: number;
+  cumulativeGpa: number;
+}
+
+export interface DepartmentPerformanceReport {
+  departmentId: number;
+  departmentCode: string;
+  departmentName: string;
+  semesterId?: number | null;
+  semesterName?: string | null;
+  studentCount: number;
+  averageSemesterGpa: number;
+  passRate: number;
+  students: DepartmentStudentSummary[];
+}
+
+export interface WarningStudent {
+  studentId: number;
+  studentNumber: string;
+  fullName: string;
+  departmentCode: string;
+  semesterGpa: number;
+  cumulativeGpa: number;
+}
+
+export interface WarningListReport {
+  semesterId: number;
+  semesterName: string;
+  threshold: number;
+  students: WarningStudent[];
+}
+
+export interface ClassRankingEntry {
+  rank: number;
+  studentId: number;
+  studentNumber: string;
+  fullName: string;
+  departmentCode: string;
+  cgpa: number;
+}
+
+export interface ClassRankingsReport {
+  semesterId?: number | null;
+  semesterName?: string | null;
+  departmentId?: number | null;
+  departmentCode?: string | null;
+  rankings: ClassRankingEntry[];
+}
+
