@@ -26,6 +26,8 @@ public class GpaSystemDbContext : DbContext
     public DbSet<CourseGrade> CourseGrades { get; set; }
     public DbSet<AcademicRecord> AcademicRecords { get; set; }
     public DbSet<Attendance> Attendances { get; set; }
+    public DbSet<AuditLog> AuditLog { get; set; }
+    public DbSet<Notification> Notification { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -321,6 +323,46 @@ public class GpaSystemDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(e => e.Instructor).WithMany(i => i.Attendances)
                 .HasForeignKey(e => e.RecordedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<AuditLog>(entity =>
+        {
+            entity.ToTable("AuditLog");
+            entity.HasKey(e => e.LogId);
+            entity.Property(e => e.LogId).HasColumnName("log_id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.ActionType).HasColumnName("action_type").IsRequired().HasMaxLength(50);
+            entity.Property(e => e.TableName).HasColumnName("table_name").HasMaxLength(100);
+            entity.Property(e => e.RecordId).HasColumnName("record_id");
+            entity.Property(e => e.OldValue).HasColumnName("old_value");
+            entity.Property(e => e.NewValue).HasColumnName("new_value");
+            entity.Property(e => e.IpAddress).HasColumnName("ip_address").HasMaxLength(45);
+            entity.Property(e => e.LoggedAt).HasColumnName("logged_at").HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.ToTable("Notification");
+            entity.HasKey(e => e.NotificationId);
+            entity.Property(e => e.NotificationId).HasColumnName("notification_id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.Type).HasColumnName("type").IsRequired().HasMaxLength(20);
+            entity.Property(e => e.Subject).HasColumnName("subject").IsRequired().HasMaxLength(255);
+            entity.Property(e => e.MessageBody).HasColumnName("message_body").IsRequired();
+            entity.Property(e => e.SentStatus).HasColumnName("sent_status").IsRequired().HasMaxLength(20).HasDefaultValue("PENDING");
+            entity.Property(e => e.SentAt).HasColumnName("sent_at");
+            entity.Property(e => e.ReadAt).HasColumnName("read_at");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }

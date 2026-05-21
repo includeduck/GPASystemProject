@@ -9,10 +9,12 @@ namespace GpaSystem.API.Controllers;
 public class StudentsController : ControllerBase
 {
     private readonly IStudentService _students;
+    private readonly IGpaCalculatorService _gpaCalculator;
 
-    public StudentsController(IStudentService students)
+    public StudentsController(IStudentService students, IGpaCalculatorService gpaCalculator)
     {
         _students = students;
+        _gpaCalculator = gpaCalculator;
     }
 
     [HttpGet]
@@ -45,5 +47,11 @@ public class StudentsController : ControllerBase
     {
         await _students.DeactivateAsync(id);
         return NoContent();
+    }
+
+    [HttpGet("{id:int}/results")]
+    public async Task<ActionResult<StudentDashboardResponse>> GetResults(int id)
+    {
+        return Ok(await _gpaCalculator.GetStudentDashboardAsync(id));
     }
 }

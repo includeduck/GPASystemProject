@@ -1,11 +1,14 @@
 import { BrowserRouter, Navigate, NavLink, Route, Routes } from 'react-router-dom';
 import {
   BookOpen,
+  BookOpenCheck,
   Building2,
   CalendarDays,
   ClipboardList,
   GraduationCap,
   Link2,
+  Sliders,
+  BarChart3,
   UserRoundCog,
   Users,
 } from 'lucide-react';
@@ -18,6 +21,9 @@ import { OfferingsPage } from './pages/OfferingsPage';
 import { PrerequisitesPage } from './pages/PrerequisitesPage';
 import { SemestersPage } from './pages/SemestersPage';
 import { StudentsPage } from './pages/StudentsPage';
+import { GradingPolicyPage } from './pages/GradingPolicyPage';
+import { GradebookPage } from './pages/GradebookPage';
+import { StudentDashboardPage } from './pages/StudentDashboardPage';
 
 const navigation = [
   { to: '/departments', label: 'Departments', icon: Building2 },
@@ -28,6 +34,9 @@ const navigation = [
   { to: '/offerings', label: 'Offerings', icon: ClipboardList },
   { to: '/prerequisites', label: 'Prerequisites', icon: Link2 },
   { to: '/enrollments', label: 'Enrollments', icon: GraduationCap },
+  { to: '/grading-policy', label: 'Grading Policy', icon: Sliders },
+  { to: '/gradebook', label: 'Gradebook', icon: BookOpenCheck },
+  { to: '/student-results', label: 'Academic Records', icon: BarChart3 },
 ];
 
 function App() {
@@ -68,6 +77,9 @@ function App() {
             <Route path="/offerings" element={<OfferingsPage />} />
             <Route path="/prerequisites" element={<PrerequisitesPage />} />
             <Route path="/enrollments" element={<EnrollmentsPage />} />
+            <Route path="/grading-policy" element={<GradingPolicyPage />} />
+            <Route path="/gradebook/:offeringId" element={<GradebookPage />} />
+            <Route path="/student-results/:studentId" element={<StudentDashboardPage />} />
             <Route path="*" element={<Navigate to="/departments" replace />} />
           </Routes>
         </main>

@@ -175,3 +175,143 @@ export interface CourseOfferingForm {
   maxCapacity: number;
   status: CourseOffering['status'];
 }
+
+export interface GradeComponent {
+  componentId: number;
+  offeringId: number;
+  componentName: string;
+  maxPoints: number;
+  sortOrder: number;
+}
+
+export interface GradeComponentResponse {
+  componentId: number;
+  offeringId: number;
+  componentName: string;
+  maxPoints: number;
+  sortOrder: number;
+}
+
+export interface CreateGradeComponentRequest {
+  componentName: string;
+  maxPoints: number;
+  sortOrder: number;
+}
+
+export interface UpdateGradeComponentRequest {
+  componentName: string;
+  maxPoints: number;
+  sortOrder: number;
+}
+
+export interface GradeEntryResponse {
+  gradeEntryId: number;
+  enrollmentId: number;
+  componentId: number;
+  obtainedMarks: number;
+  recordedBy: number;
+  instructorName: string;
+  recordedAt: string;
+  lastModifiedAt: string;
+}
+
+export interface RecordGradeEntryRequest {
+  enrollmentId: number;
+  componentId: number;
+  obtainedMarks: number;
+}
+
+export interface RosterGradeResponse {
+  enrollmentId: number;
+  studentId: number;
+  studentNumber: string;
+  studentName: string;
+  entries: GradeEntryResponse[];
+  totalObtained?: number | null;
+  maxPossible?: number | null;
+  percentage?: number | null;
+  letterGrade?: string | null;
+  gradePoints?: number | null;
+  enrollmentStatus: string;
+}
+
+export interface GradingPolicy {
+  policyId: number;
+  letterGrade: string;
+  minPercentage: number;
+  maxPercentage: number;
+  gradePoint: number;
+  isActive: boolean;
+  effectiveFrom: string;
+}
+
+export interface GradingPolicyResponse {
+  policyId: number;
+  letterGrade: string;
+  minPercentage: number;
+  maxPercentage: number;
+  gradePoint: number;
+  isActive: boolean;
+  effectiveFrom: string;
+}
+
+export interface UpdateGradingPolicyRequest {
+  policyId?: number | null;
+  letterGrade: string;
+  minPercentage: number;
+  maxPercentage: number;
+  gradePoint: number;
+  isActive: boolean;
+  effectiveFrom: string;
+}
+
+export interface FinalizeGradesRequest {
+  force: boolean;
+}
+
+export interface CourseGradeResponse {
+  gradeId: number;
+  enrollmentId: number;
+  totalObtained: number;
+  maxPossible: number;
+  percentage: number;
+  letterGrade: string;
+  gradePoints: number;
+  isRepeatedAttempt: boolean;
+  calculatedAt: string;
+}
+
+export interface StudentCourseGradeResponse {
+  courseId: number;
+  courseCode: string;
+  courseTitle: string;
+  creditHours: number;
+  totalObtained: number;
+  maxPossible: number;
+  percentage: number;
+  letterGrade: string;
+  gradePoints: number;
+  isRepeatedAttempt: boolean;
+  status: string;
+}
+
+export interface SemesterResultResponse {
+  semesterId: number;
+  semesterName: string;
+  gpa: number;
+  cgpa: number;
+  creditsAttempted: number;
+  creditsEarned: number;
+  courses: StudentCourseGradeResponse[];
+}
+
+export interface StudentDashboardResponse {
+  studentId: number;
+  fullName: string;
+  studentNumber: string;
+  cgpa: number;
+  totalCreditsAttempted: number;
+  totalCreditsEarned: number;
+  semesters: SemesterResultResponse[];
+}
+

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Pencil, Plus, Save, UserX, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Pencil, Plus, Save, UserX, X, GraduationCap } from 'lucide-react';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { CredentialsPanel } from '../components/CredentialsPanel';
 import { EmptyState } from '../components/EmptyState';
@@ -28,6 +29,7 @@ const emptyForm: StudentFormState = {
 };
 
 export function StudentsPage() {
+  const navigate = useNavigate();
   const [students, setStudents] = useState<Student[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [form, setForm] = useState<StudentFormState>(emptyForm);
@@ -323,7 +325,16 @@ export function StudentsPage() {
                         {student.status}
                       </span>
                     </td>
-                    <td className="table-actions">
+                    <td className="table-actions" style={{ width: 180 }}>
+                      <button
+                        className="icon-button"
+                        type="button"
+                        onClick={() => navigate(`/student-results/${student.studentId}`)}
+                        title="View Academic Record"
+                        aria-label={`View Academic Record for ${student.fullName}`}
+                      >
+                        <GraduationCap size={17} />
+                      </button>
                       <button
                         className="icon-button"
                         type="button"

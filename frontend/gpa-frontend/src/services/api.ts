@@ -17,6 +17,14 @@ import type {
   SemesterForm,
   Student,
   StudentForm,
+  GradingPolicyResponse,
+  UpdateGradingPolicyRequest,
+  GradeComponentResponse,
+  CreateGradeComponentRequest,
+  UpdateGradeComponentRequest,
+  RosterGradeResponse,
+  RecordGradeEntryRequest,
+  StudentDashboardResponse,
 } from '../types/models';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5273/api';
@@ -230,3 +238,70 @@ export const enrollmentApi = {
     return response.data;
   },
 };
+
+export const gradingPolicyApi = {
+  list: async (): Promise<GradingPolicyResponse[]> => {
+    const response = await apiClient.get('/admin/grading-policies');
+    return response.data;
+  },
+  update: async (payload: UpdateGradingPolicyRequest[]): Promise<GradingPolicyResponse[]> => {
+    const response = await apiClient.put('/admin/grading-policies', payload);
+    return response.data;
+  },
+  getConfig: async (): Promise<{ pass_fail_cutoff: number }> => {
+    const response = await apiClient.get('/admin/configuration');
+    return response.data;
+  },
+  updateConfig: async (passFailCutoff: number): Promise<void> => {
+    await apiClient.put('/admin/configuration', { passFailCutoff });
+  },
+};
+
+export const gradeComponentApi = {
+  list: async (offeringId: number): Promise<GradeComponentResponse[]> => {
+    const response = await apiClient.get(`/offerings/${offeringId}/components`);
+    return response.data;
+  },
+  create: async (offeringId: number, payload: CreateGradeComponentRequest): Promise<GradeComponentResponse> => {
+    const response = await apiClient.post(`/offerings/${offeringId}/components`, payload);
+    return response.data;
+  },
+  update: async (
+    offeringId: number,
+    componentId: number,
+    payload: UpdateGradeComponentRequest,
+  ): Promise<GradeComponentResponse> => {
+    const response = await apiClient.put(`/offerings/${offeringId}/components/${componentId}`, payload);
+    return response.data;
+  },
+  delete: async (offeringId: number, componentId: number): Promise<void> => {
+    await apiClient.delete(`/offerings/${offeringId}/components/${componentId}`);
+  },
+};
+
+export const gradeEntryApi = {
+  getRoster: async (offeringId: number): Promise<RosterGradeResponse[]> => {
+    const response = await apiClient.get(`/offerings/${offeringId}/gradebook`);
+    return response.data;
+  },
+  recordMarks: async (
+    offeringId: number,
+    payload: RecordGradeEntryRequest[],
+    instructorId?: number,
+  ): Promise<void> => {
+    const headers = instructorId ? { 'X-Instructor-Id': instructorId.toString() } : undefined;
+    await apiClient.post(`/offerings/${offeringId}/marks`, payload, { headers });
+  },
+  finalize: async (offeringId: number, force: boolean, instructorId?: number): Promise<void> => {
+    const headers = instructorId ? { 'X-Instructor-Id': instructorId.toString() } : undefined;
+    await apiClient.post(`/offerings/${offeringId}/finalize`, { force }, { headers });
+  },
+};
+
+export const studentResultsApi = {
+  getDashboard: async (studentId: number): Promise<StudentDashboardResponse> => {
+    const response = await apiClient.get(`/students/${studentId}/results`);
+    return response.data;
+  },
+};
+

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Pencil, Plus, Save, Trash2, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Pencil, Plus, Save, Trash2, X, BookOpenCheck } from 'lucide-react';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { EmptyState } from '../components/EmptyState';
 import { StatusBanner } from '../components/StatusBanner';
@@ -30,6 +31,7 @@ const emptyForm: OfferingFormState = {
 };
 
 export function OfferingsPage() {
+  const navigate = useNavigate();
   const [offerings, setOfferings] = useState<CourseOffering[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [semesters, setSemesters] = useState<Semester[]>([]);
@@ -325,7 +327,16 @@ export function OfferingsPage() {
                         {offering.status}
                       </span>
                     </td>
-                    <td className="table-actions">
+                    <td className="table-actions" style={{ width: 180 }}>
+                      <button
+                        className="icon-button"
+                        type="button"
+                        onClick={() => navigate(`/gradebook/${offering.offeringId}`)}
+                        title="Open Gradebook"
+                        aria-label={`Open Gradebook for ${offering.courseCode}`}
+                      >
+                        <BookOpenCheck size={17} />
+                      </button>
                       <button
                         className="icon-button"
                         type="button"

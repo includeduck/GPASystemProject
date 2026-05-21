@@ -25,6 +25,12 @@ builder.Services.AddScoped<ISemesterRepository, SemesterRepository>();
 builder.Services.AddScoped<ICourseOfferingRepository, CourseOfferingRepository>();
 builder.Services.AddScoped<ICoursePrerequisiteRepository, CoursePrerequisiteRepository>();
 builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
+builder.Services.AddScoped<IGradeComponentRepository, GradeComponentRepository>();
+builder.Services.AddScoped<IGradeEntryRepository, GradeEntryRepository>();
+builder.Services.AddScoped<IGradingPolicyRepository, GradingPolicyRepository>();
+builder.Services.AddScoped<ICourseGradeRepository, CourseGradeRepository>();
+builder.Services.AddScoped<IAcademicRecordRepository, AcademicRecordRepository>();
+
 builder.Services.AddScoped<ICredentialService, CredentialService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
@@ -34,6 +40,11 @@ builder.Services.AddScoped<ISemesterService, SemesterService>();
 builder.Services.AddScoped<ICourseOfferingService, CourseOfferingService>();
 builder.Services.AddScoped<IPrerequisiteService, PrerequisiteService>();
 builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
+
+builder.Services.AddScoped<IGradingStrategy, StandardGradingStrategy>();
+builder.Services.AddScoped<IGpaCalculatorService, GpaCalculatorService>();
+builder.Services.AddScoped<IGradeService, GradeService>();
+builder.Services.AddScoped<IGradingPolicyService, GradingPolicyService>();
 
 // Add CORS
 builder.Services.AddCors(options =>

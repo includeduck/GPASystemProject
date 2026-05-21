@@ -105,6 +105,37 @@ internal static class ServiceFactory
     {
         return new CredentialService(db);
     }
+
+    public static GpaCalculatorService CreateGpaCalculatorService(GpaSystemDbContext db)
+    {
+        return new GpaCalculatorService(
+            db,
+            new CourseGradeRepository(db),
+            new AcademicRecordRepository(db),
+            new StudentRepository(db),
+            new SemesterRepository(db));
+    }
+
+    public static GradeService CreateGradeService(GpaSystemDbContext db)
+    {
+        return new GradeService(
+            db,
+            new GradeComponentRepository(db),
+            new GradeEntryRepository(db),
+            new CourseOfferingRepository(db),
+            new EnrollmentRepository(db),
+            new CourseGradeRepository(db),
+            new GradingPolicyRepository(db),
+            CreateGpaCalculatorService(db),
+            new StandardGradingStrategy());
+    }
+
+    public static GradingPolicyService CreateGradingPolicyService(GpaSystemDbContext db)
+    {
+        return new GradingPolicyService(
+            db,
+            new GradingPolicyRepository(db));
+    }
 }
 
 internal sealed record SeededCatalog(
