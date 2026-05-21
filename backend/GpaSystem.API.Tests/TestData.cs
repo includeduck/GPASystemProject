@@ -4,6 +4,7 @@ using GpaSystem.API.Repositories;
 using GpaSystem.API.Services;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace GpaSystem.API.Tests;
 
@@ -76,7 +77,7 @@ internal static class ServiceFactory
             db,
             new StudentRepository(db),
             new DepartmentRepository(db),
-            new CredentialService(db));
+            new CredentialService(db, new PasswordService()));
     }
 
     public static InstructorService CreateInstructorService(GpaSystemDbContext db)
@@ -85,7 +86,7 @@ internal static class ServiceFactory
             db,
             new InstructorRepository(db),
             new DepartmentRepository(db),
-            new CredentialService(db));
+            new CredentialService(db, new PasswordService()));
     }
 
     public static DepartmentService CreateDepartmentService(GpaSystemDbContext db)
@@ -103,7 +104,28 @@ internal static class ServiceFactory
 
     public static CredentialService CreateCredentialService(GpaSystemDbContext db)
     {
-        return new CredentialService(db);
+        return new CredentialService(db, new PasswordService());
+    }
+
+    public static PasswordService CreatePasswordService()
+    {
+        return new PasswordService();
+    }
+
+    public static AuthService CreateAuthService(GpaSystemDbContext db)
+    {
+        var settings = new Dictionary<string, string?>
+        {
+            ["Jwt:Issuer"] = "GpaSystem.Tests",
+            ["Jwt:Audience"] = "GpaSystem.Tests.Client",
+            ["Jwt:SigningKey"] = "GpaSystemTestsSigningKeyForPhaseFive2026",
+            ["Jwt:ExpiryMinutes"] = "15"
+        };
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(settings)
+            .Build();
+
+        return new AuthService(db, new PasswordService(), configuration);
     }
 
     public static ReportService CreateReportService(GpaSystemDbContext db)

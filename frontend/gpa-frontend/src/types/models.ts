@@ -125,6 +125,41 @@ export interface TemporaryCredentials {
   temporaryPassword: string;
 }
 
+export type AuthRole = 'ADMIN' | 'INSTRUCTOR' | 'STUDENT';
+
+export interface AuthUser {
+  userId: number;
+  username: string;
+  email: string;
+  role: AuthRole;
+  displayName: string;
+  studentId?: number | null;
+  instructorId?: number | null;
+  adminId?: number | null;
+}
+
+export interface LoginResponse {
+  token: string;
+  expiresAt: string;
+  user: AuthUser;
+}
+
+export interface ChangePasswordForm {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface BootstrapAdminForm {
+  fullName?: string;
+  username?: string;
+  email?: string;
+}
+
+export interface BootstrapAdminResponse {
+  user: AuthUser;
+  credentials: TemporaryCredentials;
+}
+
 export interface CreateStudentResponse {
   student: Student;
   credentials: TemporaryCredentials;
@@ -436,4 +471,3 @@ export interface ClassRankingsReport {
   departmentCode?: string | null;
   rankings: ClassRankingEntry[];
 }
-

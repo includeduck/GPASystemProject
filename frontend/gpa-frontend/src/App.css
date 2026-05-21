@@ -17,6 +17,31 @@
   border-right: 1px solid var(--border);
 }
 
+.sidebar-account {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.sidebar-account strong,
+.sidebar-account span {
+  display: block;
+}
+
+.sidebar-account strong {
+  font-size: 14px;
+}
+
+.sidebar-account span {
+  color: var(--text-muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -70,6 +95,44 @@
 .workspace {
   min-width: 0;
   padding: 32px;
+}
+
+.auth-page {
+  display: grid;
+  min-height: 100svh;
+  place-items: center;
+  padding: 24px;
+  background: var(--surface-muted);
+}
+
+.auth-panel {
+  display: grid;
+  gap: 18px;
+  width: min(460px, 100%);
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.auth-brand strong,
+.auth-brand span {
+  display: block;
+}
+
+.auth-brand span {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.auth-form h1 {
+  font-size: 28px;
+}
+
+.auth-actions {
+  flex-wrap: wrap;
 }
 
 .page {

@@ -1,11 +1,13 @@
 using GpaSystem.API.DTOs;
 using GpaSystem.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GpaSystem.API.Controllers;
 
 [ApiController]
 [Route("api/instructors")]
+[Authorize(Roles = AuthRoles.Admin)]
 public class InstructorsController : ControllerBase
 {
     private readonly IInstructorService _instructors;

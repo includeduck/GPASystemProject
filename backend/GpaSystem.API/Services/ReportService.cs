@@ -98,7 +98,7 @@ public class ReportService : IReportService
         };
     }
 
-    public async Task<CoursePerformanceReportResponse> GetCoursePerformanceAsync(int courseId, int? semesterId = null)
+    public async Task<CoursePerformanceReportResponse> GetCoursePerformanceAsync(int courseId, int? semesterId = null, int? instructorId = null)
     {
         var course = await _courses.GetByIdAsync(courseId)
             ?? throw ApiException.NotFound("Course was not found.");
@@ -113,6 +113,11 @@ public class ReportService : IReportService
         if (semesterId.HasValue)
         {
             offeringsQuery = offeringsQuery.Where(o => o.SemesterId == semesterId.Value);
+        }
+
+        if (instructorId.HasValue)
+        {
+            offeringsQuery = offeringsQuery.Where(o => o.InstructorId == instructorId.Value);
         }
 
         var offerings = await offeringsQuery.ToListAsync();
@@ -143,7 +148,7 @@ public class ReportService : IReportService
         }
 
         var passed = allPercentages.Count > 0
-            ? await CountPassingGradesForCourseAsync(courseId, semesterId)
+            ? await CountPassingGradesForCourseAsync(courseId, semesterId, instructorId)
             : 0;
         var total = allPercentages.Count;
 
@@ -434,7 +439,7 @@ public class ReportService : IReportService
         return grades.Select(MapCourseGrade).ToList();
     }
 
-    private async Task<int> CountPassingGradesForCourseAsync(int courseId, int? semesterId)
+    private async Task<int> CountPassingGradesForCourseAsync(int courseId, int? semesterId, int? instructorId)
     {
         var query = _db.CourseGrades
             .Where(cg =>
@@ -445,6 +450,11 @@ public class ReportService : IReportService
         if (semesterId.HasValue)
         {
             query = query.Where(cg => cg.Enrollment.CourseOffering.SemesterId == semesterId.Value);
+        }
+
+        if (instructorId.HasValue)
+        {
+            query = query.Where(cg => cg.Enrollment.CourseOffering.InstructorId == instructorId.Value);
         }
 
         return await query.CountAsync();

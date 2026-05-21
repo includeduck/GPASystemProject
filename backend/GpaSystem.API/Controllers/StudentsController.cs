@@ -1,11 +1,13 @@
 using GpaSystem.API.DTOs;
 using GpaSystem.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GpaSystem.API.Controllers;
 
 [ApiController]
 [Route("api/students")]
+[Authorize]
 public class StudentsController : ControllerBase
 {
     private readonly IStudentService _students;
@@ -18,6 +20,7 @@ public class StudentsController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = AuthRoles.AdminOrInstructor)]
     public async Task<ActionResult> GetAll(
         [FromQuery] string? search,
         [FromQuery] int? departmentId,
@@ -57,10 +60,16 @@ public class StudentsController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<StudentResponse>> GetById(int id)
     {
+        if (User.IsInRole(AuthRoles.Student) && User.GetStudentId() != id)
+        {
+            return Forbid();
+        }
+
         return Ok(await _students.GetByIdAsync(id));
     }
 
     [HttpPost]
+    [Authorize(Roles = AuthRoles.Admin)]
     public async Task<ActionResult<CreateStudentResponse>> Create(CreateStudentRequest request)
     {
         var response = await _students.CreateAsync(request);
@@ -68,12 +77,14 @@ public class StudentsController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = AuthRoles.Admin)]
     public async Task<ActionResult<StudentResponse>> Update(int id, UpdateStudentRequest request)
     {
         return Ok(await _students.UpdateAsync(id, request));
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = AuthRoles.Admin)]
     public async Task<IActionResult> Deactivate(int id)
     {
         await _students.DeactivateAsync(id);
@@ -81,8 +92,14 @@ public class StudentsController : ControllerBase
     }
 
     [HttpGet("{id:int}/results")]
+    [Authorize(Roles = AuthRoles.AdminOrStudent)]
     public async Task<ActionResult<StudentDashboardResponse>> GetResults(int id)
     {
+        if (User.IsInRole(AuthRoles.Student) && User.GetStudentId() != id)
+        {
+            return Forbid();
+        }
+
         return Ok(await _gpaCalculator.GetStudentDashboardAsync(id));
     }
 }

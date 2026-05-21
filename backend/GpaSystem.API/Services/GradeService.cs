@@ -210,6 +210,7 @@ public class GradeService : IGradeService
     public async Task RecordMarksAsync(int offeringId, List<RecordGradeEntryRequest> requests, int instructorId)
     {
         var offering = await FindOfferingAsync(offeringId);
+        await EnsureInstructorExistsAsync(instructorId);
         if (offering.IsGradeFinalized)
         {
             throw ApiException.BadRequest("Cannot modify grades. The course offering is already finalized.");
@@ -265,6 +266,7 @@ public class GradeService : IGradeService
     public async Task FinalizeGradesAsync(int offeringId, bool force, int instructorId)
     {
         var offering = await FindOfferingAsync(offeringId);
+        var actorUserId = await EnsureInstructorExistsAsync(instructorId);
         if (offering.IsGradeFinalized)
         {
             throw ApiException.BadRequest("Grades for this offering have already been finalized.");
@@ -436,7 +438,7 @@ public class GradeService : IGradeService
             // AuditLog grade finalization
             var auditLog = new AuditLog
             {
-                UserId = instructorId, // recorded by instructor
+                UserId = actorUserId,
                 ActionType = "GRADE_FINALIZATION",
                 TableName = "CourseOffering",
                 RecordId = offeringId,
@@ -460,6 +462,21 @@ public class GradeService : IGradeService
     {
         return await _offerings.GetByIdAsync(id)
             ?? throw ApiException.NotFound($"Course offering with ID {id} was not found.");
+    }
+
+    private async Task<int> EnsureInstructorExistsAsync(int instructorId)
+    {
+        var userId = await _db.Instructors
+            .Where(i => i.InstructorId == instructorId)
+            .Select(i => i.UserId)
+            .FirstOrDefaultAsync();
+
+        if (userId == 0)
+        {
+            throw ApiException.BadRequest("Instructor was not found.");
+        }
+
+        return userId;
     }
 
     private static GradeComponentResponse Map(GradeComponent component)

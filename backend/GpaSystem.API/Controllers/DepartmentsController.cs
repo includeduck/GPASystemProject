@@ -1,11 +1,13 @@
 using GpaSystem.API.DTOs;
 using GpaSystem.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GpaSystem.API.Controllers;
 
 [ApiController]
 [Route("api/departments")]
+[Authorize(Roles = AuthRoles.Admin)]
 public class DepartmentsController : ControllerBase
 {
     private readonly IDepartmentService _departments;

@@ -1,9 +1,13 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Diagnostics;
 using GpaSystem.API.Data;
 using GpaSystem.API.Exceptions;
 using GpaSystem.API.Repositories;
 using GpaSystem.API.Services;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +15,38 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(); 
+
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "GpaSystem";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "GpaSystemClient";
+var jwtSigningKey = builder.Configuration["Jwt:SigningKey"];
+if (string.IsNullOrWhiteSpace(jwtSigningKey) || jwtSigningKey.Length < 32)
+{
+    throw new InvalidOperationException("Jwt:SigningKey must be configured and at least 32 characters long.");
+}
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSigningKey)),
+            ClockSkew = TimeSpan.FromSeconds(30)
+        };
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 
 // Add DbContext
 builder.Services.AddDbContext<GpaSystemDbContext>(options =>
@@ -31,7 +67,9 @@ builder.Services.AddScoped<IGradingPolicyRepository, GradingPolicyRepository>();
 builder.Services.AddScoped<ICourseGradeRepository, CourseGradeRepository>();
 builder.Services.AddScoped<IAcademicRecordRepository, AcademicRecordRepository>();
 
+builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ICredentialService, CredentialService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IInstructorService, InstructorService>();
@@ -95,10 +133,14 @@ app.UseExceptionHandler(exceptionApp =>
     });
 });
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 // Test endpoint - verify API is working
 app.MapGet("/api/test", () => new { message = "GPA System API is running!", timestamp = DateTime.UtcNow })
     .WithName("TestApi")
-    .WithOpenApi();
+    .WithOpenApi()
+    .AllowAnonymous();
 
 // Health check endpoint
 app.MapGet("/api/health", async (GpaSystemDbContext db) =>
@@ -114,8 +156,13 @@ app.MapGet("/api/health", async (GpaSystemDbContext db) =>
     }
 })
 .WithName("HealthCheck")
-.WithOpenApi();
+.WithOpenApi()
+.AllowAnonymous();
 
 app.MapControllers();
 
 app.Run();
+
+public partial class Program
+{
+}

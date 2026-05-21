@@ -14,4 +14,8 @@ public class ApiException : Exception
     public static ApiException Conflict(string message) => new(StatusCodes.Status409Conflict, message);
 
     public static ApiException BadRequest(string message) => new(StatusCodes.Status400BadRequest, message);
+
+    public static ApiException Unauthorized(string message) => new(StatusCodes.Status401Unauthorized, message);
+
+    public static ApiException Forbidden(string message) => new(StatusCodes.Status403Forbidden, message);
 }

@@ -1,86 +1,97 @@
 GPA_System/
 |-- backend/
-|   `-- GpaSystem.API/                      # ASP.NET Core Web API (net8.0)
-|       |-- Controllers/                     # Phase 1 CRUD API controllers
-|       |   |-- CoursesController.cs
-|       |   |-- DepartmentsController.cs
-|       |   |-- InstructorsController.cs
-|       |   `-- StudentsController.cs
-|       |-- Data/
-|       |   `-- GpaSystemDbContext.cs        # EF Core DbContext with explicit SQL schema mappings
-|       |-- DTOs/                            # API request/response contracts
-|       |   |-- CommonDtos.cs
-|       |   |-- CourseDtos.cs
-|       |   |-- DepartmentDtos.cs
-|       |   |-- InstructorDtos.cs
-|       |   `-- StudentDtos.cs
-|       |-- Exceptions/
-|       |   `-- ApiException.cs              # HTTP-aware service exception type
-|       |-- Models/                          # EF Core entity models
-|       |   |-- Department.cs
-|       |   |-- Semester.cs
-|       |   |-- GradingPolicy.cs
-|       |   |-- AppUser.cs
-|       |   |-- Administrator.cs
-|       |   |-- Instructor.cs
-|       |   |-- Student.cs
-|       |   |-- Course.cs
-|       |   |-- CoursePrerequisite.cs
-|       |   |-- CourseOffering.cs
-|       |   |-- Enrollment.cs
-|       |   |-- GradeComponent.cs
-|       |   |-- GradeEntry.cs
-|       |   |-- CourseGrade.cs
-|       |   |-- AcademicRecord.cs
-|       |   `-- Attendance.cs
-|       |-- Repositories/                     # Entity-specific data access wrappers
-|       |   |-- DepartmentRepository.cs
-|       |   |-- StudentRepository.cs
-|       |   |-- InstructorRepository.cs
-|       |   |-- CourseRepository.cs
-|       |   `-- I*Repository.cs
-|       |-- Services/                         # Phase 1 CRUD business logic
-|       |   |-- CredentialService.cs
-|       |   |-- DepartmentService.cs
-|       |   |-- StudentService.cs
-|       |   |-- InstructorService.cs
-|       |   |-- CourseService.cs
-|       |   `-- I*Service.cs
-|       |-- Program.cs                        # DI, CORS, Swagger, health/test endpoints, controllers
-|       |-- appsettings.json
-|       |-- appsettings.Development.json      # Local SQL Server connection string
-|       |-- GpaSystem.API.csproj
-|       `-- Properties/
+|   |-- GpaSystem.API/
+|   |   |-- Controllers/
+|   |   |   |-- AdminController.cs              # Demo seed, dev admin bootstrap, admin password reset
+|   |   |   |-- AuthController.cs               # Login, current user, password change
+|   |   |   |-- CourseOfferingsController.cs
+|   |   |   |-- CoursesController.cs
+|   |   |   |-- DepartmentsController.cs
+|   |   |   |-- EnrollmentsController.cs
+|   |   |   |-- GradeComponentsController.cs
+|   |   |   |-- GradeEntriesController.cs
+|   |   |   |-- GradingPoliciesController.cs
+|   |   |   |-- InstructorsController.cs
+|   |   |   |-- PrerequisitesController.cs
+|   |   |   |-- ReportsController.cs
+|   |   |   |-- SemestersController.cs
+|   |   |   `-- StudentsController.cs
+|   |   |-- Data/
+|   |   |   `-- GpaSystemDbContext.cs
+|   |   |-- DTOs/
+|   |   |   |-- AuthDtos.cs
+|   |   |   |-- CommonDtos.cs
+|   |   |   |-- CourseDtos.cs
+|   |   |   |-- CourseOfferingDtos.cs
+|   |   |   |-- DepartmentDtos.cs
+|   |   |   |-- EnrollmentDtos.cs
+|   |   |   |-- GradeDtos.cs
+|   |   |   |-- InstructorDtos.cs
+|   |   |   |-- PrerequisiteDtos.cs
+|   |   |   |-- ReportDtos.cs
+|   |   |   |-- SemesterDtos.cs
+|   |   |   `-- StudentDtos.cs
+|   |   |-- Exceptions/
+|   |   |   `-- ApiException.cs
+|   |   |-- Models/                         # AppUser, Administrator, Student, Instructor, academic entities, AuditLog, Notification
+|   |   |-- Repositories/                   # Entity-specific data access wrappers
+|   |   |-- Services/
+|   |   |   |-- AuthService.cs
+|   |   |   |-- PasswordService.cs
+|   |   |   |-- CredentialService.cs
+|   |   |   |-- ClaimsPrincipalExtensions.cs
+|   |   |   |-- AuthRoles.cs
+|   |   |   |-- *Service.cs                    # CRUD, enrollment, grading, GPA, reports
+|   |   |   `-- I*Service.cs
+|   |   |-- Program.cs                       # DI, CORS, Swagger, JWT auth, global auth fallback
+|   |   |-- appsettings.json                 # JWT defaults
+|   |   `-- appsettings.Development.json     # SQL Server connection and JWT dev settings
+|   `-- GpaSystem.API.Tests/
+|       |-- Phase1ServiceTests.cs
+|       |-- EnrollmentServiceTests.cs
+|       |-- GradeServiceTests.cs
+|       |-- ReportServiceTests.cs
+|       |-- Phase5AuthServiceTests.cs
+|       |-- Phase5AuthorizationIntegrationTests.cs
+|       `-- TestData.cs
 |
 |-- frontend/
-|   `-- gpa-frontend/                        # React + TypeScript + Vite
+|   `-- gpa-frontend/
 |       |-- src/
-|       |   |-- components/                   # Reusable admin UI
+|       |   |-- auth/
+|       |   |   `-- AuthContext.tsx
+|       |   |-- components/
 |       |   |   |-- ConfirmDialog.tsx
 |       |   |   |-- CredentialsPanel.tsx
 |       |   |   |-- EmptyState.tsx
+|       |   |   |-- ProtectedRoute.tsx
 |       |   |   `-- StatusBanner.tsx
-|       |   |-- pages/                        # Phase 1 admin pages
-|       |   |   |-- CoursesPage.tsx
+|       |   |-- pages/
+|       |   |   |-- LoginPage.tsx
+|       |   |   |-- ProfilePage.tsx
 |       |   |   |-- DepartmentsPage.tsx
+|       |   |   |-- StudentsPage.tsx
 |       |   |   |-- InstructorsPage.tsx
-|       |   |   `-- StudentsPage.tsx
+|       |   |   |-- CoursesPage.tsx
+|       |   |   |-- SemestersPage.tsx
+|       |   |   |-- OfferingsPage.tsx
+|       |   |   |-- PrerequisitesPage.tsx
+|       |   |   |-- EnrollmentsPage.tsx
+|       |   |   |-- GradebookPage.tsx
+|       |   |   |-- GradingPolicyPage.tsx
+|       |   |   |-- StudentDashboardPage.tsx
+|       |   |   `-- reports/
 |       |   |-- services/
-|       |   |   `-- api.ts                    # Axios API client and CRUD services
+|       |   |   `-- api.ts
 |       |   |-- types/
-|       |   |   `-- models.ts                 # TypeScript API models/forms
+|       |   |   `-- models.ts
 |       |   |-- utils/
 |       |   |   `-- dates.ts
-|       |   |-- App.tsx                       # Admin shell with routes
+|       |   |-- App.tsx
 |       |   |-- App.css
 |       |   |-- index.css
 |       |   `-- main.tsx
-|       |-- public/
-|       |-- index.html
-|       |-- vite.config.ts
-|       |-- tsconfig.json
-|       |-- package.json                      # React 19, axios, react-router-dom, lucide-react
-|       `-- eslint.config.js
+|       `-- package.json
 |
 |-- scripts/
 |   |-- dev-start.bat
@@ -93,7 +104,11 @@ GPA_System/
 |   |-- GPASystem_SRS.md
 |   |-- ImplementationOrder.md
 |   |-- Schema.sql
+|   |-- SeedDemoData.sql
 |   |-- UseCases.md
-|   `-- Structure.txt
+|   |-- Structure.txt
+|   `-- ERD.png
 |
-`-- Progress.md
+|-- Progress.md
+|-- Structure.md
+`-- README.md

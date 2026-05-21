@@ -1,6 +1,10 @@
 import axios from 'axios';
 import type {
   AvailableOffering,
+  AuthUser,
+  BootstrapAdminForm,
+  BootstrapAdminResponse,
+  ChangePasswordForm,
   Course,
   CourseOffering,
   CourseOfferingForm,
@@ -34,9 +38,17 @@ import type {
   DepartmentPerformanceReport,
   WarningListReport,
   ClassRankingsReport,
+  LoginResponse,
 } from '../types/models';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5273/api';
+export const AUTH_TOKEN_KEY = 'gpa-auth-token';
+
+export const authTokenStore = {
+  get: () => sessionStorage.getItem(AUTH_TOKEN_KEY),
+  set: (token: string) => sessionStorage.setItem(AUTH_TOKEN_KEY, token),
+  clear: () => sessionStorage.removeItem(AUTH_TOKEN_KEY),
+};
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -45,6 +57,27 @@ const apiClient = axios.create({
   },
   withCredentials: true,
 });
+
+apiClient.interceptors.request.use((config) => {
+  const token = authTokenStore.get();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      authTokenStore.clear();
+      window.dispatchEvent(new Event('gpa-auth-expired'));
+    }
+
+    return Promise.reject(error);
+  },
+);
 
 export interface TestResponse {
   message: string;
@@ -91,6 +124,24 @@ export const apiService = {
 
   health: async (): Promise<HealthResponse> => {
     const response = await apiClient.get('/health');
+    return response.data;
+  },
+};
+
+export const authApi = {
+  login: async (username: string, password: string): Promise<LoginResponse> => {
+    const response = await apiClient.post('/auth/login', { username, password });
+    return response.data;
+  },
+  me: async (): Promise<AuthUser> => {
+    const response = await apiClient.get('/auth/me');
+    return response.data;
+  },
+  changePassword: async (payload: ChangePasswordForm): Promise<void> => {
+    await apiClient.post('/auth/change-password', payload);
+  },
+  bootstrapAdmin: async (payload: BootstrapAdminForm = {}): Promise<BootstrapAdminResponse> => {
+    const response = await apiClient.post('/admin/bootstrap-admin', payload);
     return response.data;
   },
 };
@@ -309,14 +360,11 @@ export const gradeEntryApi = {
   recordMarks: async (
     offeringId: number,
     payload: RecordGradeEntryRequest[],
-    instructorId?: number,
   ): Promise<void> => {
-    const headers = instructorId ? { 'X-Instructor-Id': instructorId.toString() } : undefined;
-    await apiClient.post(`/offerings/${offeringId}/marks`, payload, { headers });
+    await apiClient.post(`/offerings/${offeringId}/marks`, payload);
   },
-  finalize: async (offeringId: number, force: boolean, instructorId?: number): Promise<void> => {
-    const headers = instructorId ? { 'X-Instructor-Id': instructorId.toString() } : undefined;
-    await apiClient.post(`/offerings/${offeringId}/finalize`, { force }, { headers });
+  finalize: async (offeringId: number, force: boolean): Promise<void> => {
+    await apiClient.post(`/offerings/${offeringId}/finalize`, { force });
   },
 };
 
@@ -410,4 +458,3 @@ export const reportApi = {
     downloadFile(response.data, `department-${departmentId}.csv`);
   },
 };
-

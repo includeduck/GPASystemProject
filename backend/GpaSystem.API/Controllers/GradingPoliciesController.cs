@@ -2,12 +2,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using GpaSystem.API.DTOs;
 using GpaSystem.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GpaSystem.API.Controllers;
 
 [ApiController]
 [Route("api/admin")]
+[Authorize(Roles = AuthRoles.Admin)]
 public class GradingPoliciesController : ControllerBase
 {
     private readonly IGradingPolicyService _policyService;

@@ -2,38 +2,44 @@
 
 ## Backend
 
-`backend/GpaSystem.API` is an ASP.NET Core Web API targeting `net8.0`.
+`backend/GpaSystem.API` is an ASP.NET Core 8 Web API.
 
-- `Controllers/` exposes REST endpoints for Phase 1 CRUD and Phase 2 enrollment workflows:
-  - Departments, Students, Instructors, Courses.
-  - Semesters, Course Offerings, Prerequisites, Enrollments.
-- `DTOs/` contains request/response contracts used by controllers and the React API client.
-- `Models/` contains EF Core entity models mapped to the existing SQL Server schema, including `Configuration` for system settings.
+- `Program.cs` configures controllers, Swagger, CORS, EF Core SQL Server, JWT bearer authentication, role authorization, and a global authenticated fallback policy.
+- `Controllers/` exposes REST endpoints for:
+  - Authentication and session management: login, current user, password change.
+  - Admin operations: first-admin bootstrap in development, demo seed, password reset.
+  - Academic workflows: departments, students, instructors, courses, semesters, offerings, prerequisites, enrollments, gradebook, reports, exports, and grading policy.
+- `DTOs/` contains request/response contracts, including Phase 5 auth contracts in `AuthDtos.cs`.
+- `Models/` maps the existing SQL schema, including `AppUser`, `Administrator`, `Student`, `Instructor`, `AuditLog`, and the academic domain entities.
 - `Data/GpaSystemDbContext.cs` maps singular SQL table names and snake_case columns explicitly.
 - `Repositories/` contains entity-specific data access wrappers.
-- `Services/` contains validation and business rules, including credential generation, CRUD rules, offering validation, prerequisite validation, and enrollment eligibility.
+- `Services/` contains business logic:
+  - `AuthService` issues JWTs, maps current-user profiles, changes passwords, resets passwords, bootstraps the first admin, and writes audit logs.
+  - `PasswordService` owns PBKDF2 hashing, verification, temporary password generation, and password complexity validation.
+  - Academic services cover CRUD, enrollment, prerequisites, grade entry, GPA/CGPA calculation, grading policy, reporting, and exports.
 - `Exceptions/ApiException.cs` provides HTTP-aware service exceptions for consistent API responses.
 
 ## Frontend
 
-`frontend/gpa-frontend` is a React + TypeScript + Vite admin application.
+`frontend/gpa-frontend` is a React 19 + TypeScript + Vite application.
 
-- `src/App.tsx` defines the admin shell, navigation, and routes.
-- `src/pages/` contains operational pages for:
-  - Departments, Students, Instructors, Courses.
-  - Semesters, Offerings, Prerequisites, Enrollments.
-- `src/services/api.ts` centralizes axios calls for backend endpoints.
-- `src/types/models.ts` defines TypeScript models and form contracts.
-- `src/components/` contains reusable UI pieces such as confirmation dialogs, status banners, empty states, and temporary credential display.
-- `src/utils/dates.ts` contains date formatting and input helpers.
+- `src/App.tsx` defines the authenticated app shell, role-filtered navigation, and protected routes.
+- `src/auth/AuthContext.tsx` manages JWT storage, current user loading, sign-in, sign-out, 401 handling, and 15-minute inactivity logout.
+- `src/pages/LoginPage.tsx` provides sign-in and development admin bootstrap.
+- `src/pages/ProfilePage.tsx` provides password change and sign-out.
+- `src/pages/` contains operational pages for admin, instructor, and student workflows.
+- `src/pages/reports/` contains report screens for semester, course, department, warnings, rankings, and the reports hub.
+- `src/services/api.ts` centralizes axios calls and attaches bearer tokens through an interceptor.
+- `src/types/models.ts` defines TypeScript models, forms, report contracts, and auth contracts.
+- `src/components/` contains reusable UI pieces such as protected routes, confirmation dialogs, credential display, status banners, and empty states.
 
 ## Tests
 
-`backend/GpaSystem.API.Tests` is an xUnit test project using EF Core SQLite in-memory.
+`backend/GpaSystem.API.Tests` is an xUnit test project using EF Core SQLite in-memory and ASP.NET Core WebApplicationFactory.
 
-- `EnrollmentServiceTests.cs` covers enrollment success, capacity, duplicate, inactive student, and prerequisite pass/fail rules.
-- `PrerequisiteServiceTests.cs` covers self-reference, duplicate, and circular prerequisite rejection.
-- `CourseOfferingServiceTests.cs` covers invalid offering references and capacity below current enrollment.
+- Phase 1-4 tests cover CRUD rules, enrollment rules, prerequisites, grading policy, grade entry/finalization, GPA calculation, reports, search, and exports.
+- `Phase5AuthServiceTests.cs` covers password hashing/verification, complexity validation, login, inactive/invalid login rejection, password change, password reset, and audit logging.
+- `Phase5AuthorizationIntegrationTests.cs` covers anonymous protected access, admin endpoint access, student ownership enforcement, and instructor offering ownership enforcement over HTTP.
 - `TestData.cs` provides SQLite context setup, service factories, and reusable seed data.
 
 ## System Information
@@ -44,8 +50,9 @@
 - `UseCases.md` for fully dressed use cases.
 - `ImplementationOrder.md` for phase sequencing.
 - `Schema.sql` for the SQL Server schema and triggers.
-- `Structure.txt` for the original text structure reference.
-- `ERD.png` for the database relationship diagram when present locally.
+- `SeedDemoData.sql` for demo helper SQL.
+- `Structure.txt` for the detailed text structure reference.
+- `ERD.png` for the database relationship diagram.
 
 ## Scripts
 

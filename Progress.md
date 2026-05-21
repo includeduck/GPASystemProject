@@ -195,13 +195,52 @@
 
 ---
 
-## Phase 5: Authentication & Authorization PENDING
+## Phase 5: Authentication & Authorization COMPLETED
 
-**Status:** Blocked until Phase 4 complete  
-**Expected Tasks:**
-1. JWT authentication.
-2. Role-based access control.
-3. Password management.
+**Status:** Implemented, tested, and UI wired  
+**Date Completed:** May 21, 2026
+
+### Scope Delivered
+1. **JWT authentication (UC-10, FR-041):** Added manual JWT login, current-user profile lookup, 15-minute token expiry, and bearer-token frontend handling without ASP.NET Identity.
+2. **Role-based access control (FR-042, FR-043):** Admin, instructor, and student roles now gate API endpoints and frontend routes.
+3. **Password management (FR-050, FR-051, NFR-004, NFR-005):** Added PBKDF2 password verification, complexity checks, user password change, admin reset-password endpoint, and generated temporary passwords.
+4. **Login activity logging (FR-056):** Login, password change, password reset, and development admin bootstrap write `AuditLog` entries.
+5. **Development bootstrap:** Added development-only `POST /api/admin/bootstrap-admin` to create the first admin account when the database has no administrator.
+
+### Backend Work Completed
+- Added `AuthController` with:
+  - `POST /api/auth/login`
+  - `GET /api/auth/me`
+  - `POST /api/auth/change-password`
+- Extended `AdminController` with:
+  - `POST /api/admin/bootstrap-admin`
+  - `POST /api/admin/users/{userId}/reset-password`
+- Added `PasswordService`, `AuthService`, auth DTOs, auth role constants, JWT configuration, JWT bearer authentication, and a global authenticated fallback policy.
+- Refactored `CredentialService` to use the shared password service while preserving the existing `PBKDF2-SHA256:{iterations}:{salt}:{hash}` format.
+- Removed grade-entry instructor spoofing via `X-Instructor-Id`; mark entry and finalization now derive instructor identity from JWT claims.
+- Applied ownership checks:
+  - Students can access only their own enrollments, results, and transcript exports.
+  - Instructors can access only assigned offerings, gradebooks, grade components, mark entry, finalization, and assigned course performance data.
+  - Admins retain management/reporting access.
+
+### Frontend Work Completed
+- Added login page, development admin bootstrap action, authenticated app shell, profile/password page, and sign-out flow.
+- Added `AuthProvider`, protected routes, bearer-token axios interceptor, 401 handling, and 15-minute inactivity logout.
+- Filtered navigation by role:
+  - Admin: management, grading policy, reports, academic records, and gradebook view.
+  - Instructor: assigned gradebooks.
+  - Student: self enrollment and self academic records.
+- Updated student enrollment and transcript pages to use the authenticated student's identity when signed in as a student.
+
+### Tests
+- **66** backend tests passing.
+- Added Phase 5 unit coverage for password hashing/verification, complexity checks, login, inactive/invalid login rejection, password change, reset password, and audit logging.
+- Added HTTP authorization integration coverage for anonymous protected access, admin management access, student self-scope enforcement, and instructor offering ownership.
+
+### Verification Completed
+- `dotnet test backend/GpaSystem.API.Tests/GpaSystem.API.Tests.csproj` passes successfully: **66/66 tests passed**.
+- `dotnet build backend/GpaSystem.API/GpaSystem.API.csproj --no-restore` passes.
+- `npm run lint` and `npm run build` in `frontend/gpa-frontend` pass cleanly.
 
 ---
 

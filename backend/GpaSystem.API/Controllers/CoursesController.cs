@@ -1,11 +1,13 @@
 using GpaSystem.API.DTOs;
 using GpaSystem.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GpaSystem.API.Controllers;
 
 [ApiController]
 [Route("api/courses")]
+[Authorize(Roles = AuthRoles.Admin)]
 public class CoursesController : ControllerBase
 {
     private readonly ICourseService _courses;

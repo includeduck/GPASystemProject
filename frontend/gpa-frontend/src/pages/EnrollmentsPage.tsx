@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
+import { useAuth } from '../auth/AuthContext';
 import { EmptyState } from '../components/EmptyState';
 import { StatusBanner } from '../components/StatusBanner';
 import { enrollmentApi, getApiErrorMessage, semesterApi, studentApi } from '../services/api';
@@ -7,6 +8,8 @@ import type { AvailableOffering, Enrollment, Semester, Student } from '../types/
 import { formatDateTime } from '../utils/dates';
 
 export function EnrollmentsPage() {
+  const { user } = useAuth();
+  const isStudent = user?.role === 'STUDENT';
   const [students, setStudents] = useState<Student[]>([]);
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
@@ -24,16 +27,18 @@ export function EnrollmentsPage() {
 
     const loadInitialData = async () => {
       try {
-        const [studentsData, semestersData] = await Promise.all([
-          studentApi.list(),
-          semesterApi.list(),
-        ]);
+        const semestersData = await semesterApi.list();
+        const studentsData = isStudent ? [] : await studentApi.list();
 
         if (!ignore) {
           const activeStudents = studentsData.filter((student) => student.status === 'ACTIVE' && student.isActive);
           setStudents(studentsData);
           setSemesters(semestersData);
-          setSelectedStudentId(activeStudents[0] ? String(activeStudents[0].studentId) : '');
+          setSelectedStudentId(
+            isStudent
+              ? String(user?.studentId ?? '')
+              : activeStudents[0] ? String(activeStudents[0].studentId) : '',
+          );
           setSelectedSemesterId(
             String(semestersData.find((semester) => semester.isCurrent)?.semesterId ?? semestersData[0]?.semesterId ?? ''),
           );
@@ -55,7 +60,7 @@ export function EnrollmentsPage() {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [isStudent, user?.studentId]);
 
   useEffect(() => {
     if (!selectedStudentId) {
@@ -131,7 +136,7 @@ export function EnrollmentsPage() {
   };
 
   const activeStudents = students.filter((student) => student.status === 'ACTIVE' && student.isActive);
-  const hasSetup = activeStudents.length > 0 && semesters.length > 0;
+  const hasSetup = (isStudent ? Boolean(selectedStudentId) : activeStudents.length > 0) && semesters.length > 0;
 
   return (
     <section className="page">
@@ -154,19 +159,26 @@ export function EnrollmentsPage() {
         </div>
         <fieldset disabled={!hasSetup || loadingEnrollment}>
           <div className="form-grid form-grid--two">
-            <label>
-              <span>Student</span>
-              <select
-                value={selectedStudentId}
-                onChange={(event) => setSelectedStudentId(event.target.value)}
-              >
-                {activeStudents.map((student) => (
-                  <option key={student.studentId} value={student.studentId}>
-                    {student.studentNumber} - {student.fullName}
-                  </option>
-                ))}
-              </select>
-            </label>
+            {isStudent ? (
+              <label>
+                <span>Student</span>
+                <input value={user?.displayName ?? ''} readOnly />
+              </label>
+            ) : (
+              <label>
+                <span>Student</span>
+                <select
+                  value={selectedStudentId}
+                  onChange={(event) => setSelectedStudentId(event.target.value)}
+                >
+                  {activeStudents.map((student) => (
+                    <option key={student.studentId} value={student.studentId}>
+                      {student.studentNumber} - {student.fullName}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             <label>
               <span>Semester</span>
               <select

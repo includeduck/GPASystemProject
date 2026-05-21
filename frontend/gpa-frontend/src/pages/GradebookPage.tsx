@@ -14,6 +14,7 @@ import {
   ShieldAlert,
   X,
 } from 'lucide-react';
+import { useAuth } from '../auth/AuthContext';
 import { StatusBanner } from '../components/StatusBanner';
 import { EmptyState } from '../components/EmptyState';
 import {
@@ -42,6 +43,7 @@ export function GradebookPage() {
   const { offeringId: rawId } = useParams<{ offeringId: string }>();
   const offeringId = Number(rawId);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   /* ─── state ─── */
   const [offering, setOffering] = useState<CourseOffering | null>(null);
@@ -143,6 +145,7 @@ export function GradebookPage() {
 
   /* ─── derived ─── */
   const isLocked = offering?.isGradeFinalized ?? false;
+  const canEdit = user?.role === 'INSTRUCTOR' && !isLocked;
 
   /* ────────────────── component CRUD ────────────────── */
 
@@ -390,7 +393,7 @@ export function GradebookPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
             <button
               className="icon-button"
-              onClick={() => navigate('/offerings')}
+              onClick={() => navigate(user?.role === 'INSTRUCTOR' ? '/gradebook' : '/offerings')}
               aria-label="Back to offerings"
               style={{ flexShrink: 0 }}
             >
@@ -434,15 +437,15 @@ export function GradebookPage() {
       ) : (
         <>
           {/* ─── Section 1: Component Configurator ─── */}
-          <div className="form-panel" style={{ opacity: isLocked ? 0.7 : 1 }}>
+          <div className="form-panel" style={{ opacity: canEdit ? 1 : 0.7 }}>
             <div className="form-panel__header">
               <h2 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <PencilLine size={20} style={{ color: 'var(--accent)' }} />
                 Grade Components
               </h2>
-              {isLocked && (
+              {!canEdit && (
                 <span style={{ fontSize: 13, color: 'var(--warning)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <Lock size={14} /> Locked
+                  <Lock size={14} /> Read only
                 </span>
               )}
             </div>
@@ -466,7 +469,7 @@ export function GradebookPage() {
                   >
                     <strong>{c.componentName}</strong>
                     <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>max {c.maxPoints}</span>
-                    {!isLocked && (
+                    {canEdit && (
                       <button
                         className="icon-button icon-button--danger"
                         style={{ width: 26, height: 26 }}
@@ -482,7 +485,7 @@ export function GradebookPage() {
             )}
 
             {/* add new */}
-            {!isLocked && (
+            {canEdit && (
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, flexWrap: 'wrap' }}>
                 <label style={{ flex: '1 1 200px' }}>
                   <span>Component Name</span>
@@ -536,7 +539,7 @@ export function GradebookPage() {
                 </span>
               </h2>
 
-              {!isLocked && Object.keys(dirtyMarks).length > 0 && (
+              {canEdit && Object.keys(dirtyMarks).length > 0 && (
                 <button
                   className="button button--primary"
                   onClick={handleSaveMarks}
@@ -597,7 +600,7 @@ export function GradebookPage() {
 
                           return (
                             <td key={comp.componentId} style={{ textAlign: 'center', padding: '8px 6px' }}>
-                              {isLocked ? (
+                              {!canEdit ? (
                                 <span style={{ fontWeight: 600 }}>{val || '—'}</span>
                               ) : (
                                 <div style={{ position: 'relative' }}>
@@ -687,7 +690,7 @@ export function GradebookPage() {
           </div>
 
           {/* ─── Finalize Actions ─── */}
-          {!isLocked && components.length > 0 && roster.length > 0 && (
+          {canEdit && components.length > 0 && roster.length > 0 && (
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
               <button
                 className="button"

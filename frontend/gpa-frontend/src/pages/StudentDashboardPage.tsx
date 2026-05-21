@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Navigate, useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
   BarChart3,
@@ -15,6 +15,7 @@ import {
   AlertTriangle,
   Award,
 } from 'lucide-react';
+import { useAuth } from '../auth/AuthContext';
 import { StatusBanner } from '../components/StatusBanner';
 import { EmptyState } from '../components/EmptyState';
 import { studentResultsApi, getApiErrorMessage, studentApi, reportApi } from '../services/api';
@@ -42,6 +43,8 @@ const gpaGradient = (gpa: number): string => {
 export function StudentDashboardPage() {
   const { studentId: rawId } = useParams<{ studentId: string }>();
   const studentId = Number(rawId);
+  const { user } = useAuth();
+  const effectiveStudentId = user?.role === 'STUDENT' ? Number(user.studentId) : studentId;
   const navigate = useNavigate();
 
   const [data, setData] = useState<StudentDashboardResponse | null>(null);
@@ -58,8 +61,8 @@ export function StudentDashboardPage() {
 
     const loadInitialData = async () => {
       try {
-        if (studentId) {
-          const result = await studentResultsApi.getDashboard(studentId);
+        if (effectiveStudentId) {
+          const result = await studentResultsApi.getDashboard(effectiveStudentId);
           if (!ignore) {
             setData(result);
             if (result.semesters.length > 0) {
@@ -91,11 +94,15 @@ export function StudentDashboardPage() {
     return () => {
       ignore = true;
     };
-  }, [studentId]);
+  }, [effectiveStudentId]);
 
   const toggleSemester = (semId: number) => {
     setExpandedSemesters((prev) => ({ ...prev, [semId]: !prev[semId] }));
   };
+
+  if (user?.role === 'STUDENT' && rawId && studentId !== user.studentId) {
+    return <Navigate to={`/student-results/${user.studentId}`} replace />;
+  }
 
   if (!rawId || Number.isNaN(studentId)) {
     const filtered = allStudents.filter((s) =>
@@ -203,7 +210,7 @@ export function StudentDashboardPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
             <button
               className="icon-button"
-              onClick={() => navigate('/students')}
+              onClick={() => navigate(user?.role === 'STUDENT' ? '/enrollments' : '/students')}
               aria-label="Back to students"
               style={{ flexShrink: 0 }}
             >
@@ -220,19 +227,19 @@ export function StudentDashboardPage() {
             </p>
           )}
         </div>
-        {studentId > 0 && (
+        {effectiveStudentId > 0 && (
           <div className="form-actions" style={{ gap: 8 }}>
             <button
               className="button button--secondary"
               type="button"
-              onClick={() => reportApi.downloadTranscriptCsv(studentId)}
+              onClick={() => reportApi.downloadTranscriptCsv(effectiveStudentId)}
             >
               <Download size={17} /> Export CSV
             </button>
             <button
               className="button button--secondary"
               type="button"
-              onClick={() => reportApi.downloadTranscriptPdf(studentId)}
+              onClick={() => reportApi.downloadTranscriptPdf(effectiveStudentId)}
             >
               <FileDown size={17} /> Export PDF
             </button>
