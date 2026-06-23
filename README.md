@@ -1,76 +1,78 @@
-# GPA System
+# 🎓 GPA System
 
 ![Status](https://img.shields.io/badge/Status-Phase%205%20Complete-brightgreen?style=for-the-badge)
-![Backend](https://img.shields.io/badge/Backend-ASP.NET_Core_8.0-512BD4?style=for-the-badge&logo=dotnet)
-![Frontend](https://img.shields.io/badge/Frontend-React_19_%2B_Vite-61DAFB?style=for-the-badge&logo=react)
-![Database](https://img.shields.io/badge/Database-SQL_Server-CC292B?style=for-the-badge&logo=microsoftsqlserver)
+[![Backend](https://img.shields.io/badge/Backend-ASP.NET_Core_8.0-512BD4?style=for-the-badge&logo=dotnet)](https://dotnet.microsoft.com/)
+[![Frontend](https://img.shields.io/badge/Frontend-React_19_%2B_Vite-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
+[![Database](https://img.shields.io/badge/Database-SQL_Server-CC292B?style=for-the-badge&logo=microsoftsqlserver)](https://www.microsoft.com/sql-server)
 
-A web-based Student Management and GPA calculation system for university administration, enrollment, grade entry, reporting, and role-based access.
+> A comprehensive web-based Student Management and GPA calculation system for university administration, enrollment, grade entry, reporting, and role-based access.
 
-## Overview
+## 📋 Overview
 
-The GPA System is a modular ASP.NET Core and React application. It supports department, student, instructor, course, semester, offering, prerequisite, enrollment, grading, GPA/CGPA, reporting, export, and authentication workflows.
+The GPA System is a modular ASP.NET Core and React application designed for comprehensive university administration. It supports department, student, instructor, course, semester, offering, prerequisite, enrollment, grading, GPA/CGPA, reporting, and role-based access management with full audit logging and security controls.
 
-### Key Features
+### ✨ Key Features
 
-- Centralized CRUD for departments, students, instructors, and courses.
-- Semester, offering, prerequisite, and enrollment management with capacity and prerequisite validation.
-- Grade components, mark entry, grade finalization, GPA/CGPA calculation, and configurable grading policies.
-- Transcript, semester, course, department, warning, ranking, CSV, and PDF report workflows.
-- Manual JWT authentication with admin, instructor, and student role-based authorization.
-- Password change, admin password reset, login activity audit logging, and 15-minute session expiry.
+- 📚 **Centralized CRUD** — Departments, students, instructors, and courses management
+- 🎓 **Academic Planning** — Semester, offering, prerequisite, and enrollment management with capacity and prerequisite validation
+- 📊 **Grading System** — Grade components, mark entry, grade finalization, GPA/CGPA calculation, and configurable grading policies
+- 📄 **Comprehensive Reports** — Transcript, semester, course, department, warning, ranking, CSV, and PDF exports
+- 🔐 **Enterprise Security** — Manual JWT authentication with admin, instructor, and student role-based authorization
+- 🛡️ **Audit & Compliance** — Password change, admin password reset, login activity audit logging, and 15-minute session expiry
 
-## Architecture & Tech Stack
+## 🏗️ Architecture & Tech Stack
 
-- Backend: ASP.NET Core 8 Web API, C#, Entity Framework Core, JWT bearer auth
-- Frontend: React 19, TypeScript, Vite, axios, react-router-dom, lucide-react
-- Database: SQL Server for development/runtime, SQLite in-memory for tests
-- Testing: xUnit, EF Core SQLite, ASP.NET Core WebApplicationFactory integration tests
+| Layer | Technology |
+|-------|-----------|
+| **Backend API** | [ASP.NET Core 8](https://dotnet.microsoft.com/) — C#, Entity Framework Core, JWT Bearer Auth |
+| **Frontend** | [React 19](https://react.dev/) — TypeScript, [Vite](https://vitejs.dev/), axios, react-router-dom, lucide-react |
+| **Database** | [SQL Server](https://www.microsoft.com/sql-server) (Development/Runtime), SQLite In-Memory (Tests) |
+| **Testing** | xUnit, EF Core SQLite, ASP.NET Core WebApplicationFactory Integration Tests |
 
-## Project Structure
+## 📁 Project Structure
 
-```text
+```
 GPA_System/
-|-- backend/
-|   |-- GpaSystem.API/                # ASP.NET Core Web API
-|   |   |-- Controllers/              # Auth, admin, academic, grading, enrollment, reports
-|   |   |-- Data/                     # EF Core DbContext and SQL schema mappings
-|   |   |-- DTOs/                     # API request/response contracts
-|   |   |-- Exceptions/               # HTTP-aware API exceptions
-|   |   |-- Models/                   # EF Core entity models
-|   |   |-- Repositories/             # Entity-specific data access wrappers
-|   |   |-- Services/                 # Business logic, auth, grading, reports
-|   |   `-- Program.cs                # DI, CORS, Swagger, JWT auth, endpoints
-|   `-- GpaSystem.API.Tests/          # xUnit service and authorization tests
-|-- frontend/
-|   `-- gpa-frontend/                 # React + TypeScript + Vite SPA
-|       |-- src/
-|       |   |-- auth/                 # AuthProvider and session handling
-|       |   |-- components/           # Reusable UI components
-|       |   |-- pages/                # Login, profile, admin, student, instructor, reports
-|       |   |-- services/             # Axios API client and auth token interceptor
-|       |   |-- types/                # TypeScript API models/forms
-|       |   `-- utils/                # Date helpers
-|       `-- package.json
-|-- scripts/                          # Local dev start/stop scripts
-|-- DBtests/                          # Database testing scripts
-|-- SystemInfo/                       # SRS, use cases, schema, implementation order, structure
-|-- Progress.md                       # Phase progress tracker
-|-- Structure.md                      # High-level architecture overview
-`-- README.md
+├── backend/
+│   ├── GpaSystem.API/                    # 🔧 ASP.NET Core Web API
+│   │   ├── Controllers/                 # Auth, Admin, Academic, Grading, Enrollment, Reports
+│   │   ├── Data/                        # EF Core DbContext & SQL Schema Mappings
+│   │   ├── DTOs/                        # API Request/Response Contracts
+│   │   ├── Exceptions/                  # HTTP-Aware API Exceptions
+│   │   ├── Models/                      # EF Core Entity Models
+│   │   ├── Repositories/                # Entity-Specific Data Access Wrappers
+│   │   ├── Services/                    # Business Logic, Auth, Grading, Reports
+│   │   └── Program.cs                   # DI, CORS, Swagger, JWT Auth, Endpoints
+│   └── GpaSystem.API.Tests/             # ✅ xUnit Service & Authorization Tests
+├── frontend/
+│   └── gpa-frontend/                    # ⚛️ React + TypeScript + Vite SPA
+│       ├── src/
+│       │   ├── auth/                    # AuthProvider & Session Handling
+│       │   ├── components/              # Reusable UI Components
+│       │   ├── pages/                   # Login, Profile, Admin, Student, Instructor, Reports
+│       │   ├── services/                # Axios API Client & Auth Interceptor
+│       │   ├── types/                   # TypeScript API Models/Forms
+│       │   └── utils/                   # Date Helpers
+│       └── package.json
+├── scripts/                             # 🚀 Local Dev Start/Stop Scripts
+├── DBtests/                             # 🗄️ Database Testing Scripts
+├── SystemInfo/                          # 📚 SRS, Use Cases, Schema, Implementation Order
+├── Progress.md                          # 📈 Phase Progress Tracker
+├── Structure.md                         # 🏛️ High-Level Architecture Overview
+└── README.md                            # 📖 This File
 ```
 
-## Getting Started
+## 🚀 Getting Started
 
-### Prerequisites
+### 📋 Prerequisites
 
-- .NET 8 SDK
-- Node.js 18+
-- SQL Server Express or LocalDB
+- [.NET 8 SDK](https://dotnet.microsoft.com/download)
+- [Node.js 18+](https://nodejs.org/)
+- [SQL Server Express](https://www.microsoft.com/sql-server/sql-server-downloads) or LocalDB
 
-### Backend Configuration
+### ⚙️ Backend Configuration
 
-`backend/GpaSystem.API/appsettings.Development.json` contains the local SQL Server connection string and JWT settings:
+The `backend/GpaSystem.API/appsettings.Development.json` file contains local SQL Server connection string and JWT settings:
 
 ```json
 "Jwt": {
@@ -81,36 +83,38 @@ GPA_System/
 }
 ```
 
-For non-local environments, replace the signing key with a secure secret of at least 32 characters.
+> ⚠️ **Security Note:** For non-local environments, replace the signing key with a secure secret of at least 32 characters.
 
-### Running Locally
+### 🏃 Running Locally
 
-Start both development servers:
+**Quick Start (Both Servers):**
 
 ```powershell
 scripts\dev-start.bat
 ```
 
-Stop both development servers:
+**Stop Both Servers:**
 
 ```powershell
 scripts\dev-stop.bat
 ```
 
-Manual startup:
+**Manual Startup:**
 
+Backend:
 ```powershell
 cd backend\GpaSystem.API
 dotnet run
 ```
 
+Frontend:
 ```powershell
 cd frontend\gpa-frontend
 npm install
 npm run dev
 ```
 
-### First Admin Login
+### 🔓 First Admin Login
 
 In development, open the frontend login page and use **Bootstrap Admin**. This calls:
 
@@ -120,24 +124,31 @@ POST /api/admin/bootstrap-admin
 
 The endpoint is development-only and succeeds only when no administrator exists. It returns a generated temporary password that can be used to sign in.
 
-## Current Progress
+## 📈 Current Progress
 
-The original five implementation phases are complete.
+All original five implementation phases are complete:
 
-- Completed Phase 0: Project Setup & Infrastructure
-- Completed Phase 1: Core Data Management
-- Completed Phase 2: Enrollment Basics
-- Completed Phase 3: Grade Entry & Calculation
-- Completed Phase 4: Reporting & Searching
-- Completed Phase 5: Authentication & Authorization
+- ✅ **Phase 0** — Project Setup & Infrastructure
+- ✅ **Phase 1** — Core Data Management
+- ✅ **Phase 2** — Enrollment Basics
+- ✅ **Phase 3** — Grade Entry & Calculation
+- ✅ **Phase 4** — Reporting & Searching
+- ✅ **Phase 5** — Authentication & Authorization
 
-See [Progress.md](./Progress.md) for detailed phase notes.
+See [Progress.md](./Progress.md) for detailed phase notes and implementation details.
 
-## Verification
+## ✔️ Verification
+
+Run tests and build verification:
 
 ```powershell
+# Run all unit tests
 dotnet test backend\GpaSystem.API.Tests\GpaSystem.API.Tests.csproj
+
+# Build backend
 dotnet build backend\GpaSystem.API\GpaSystem.API.csproj --no-restore
+
+# Verify frontend
 cd frontend\gpa-frontend
 npm run lint
 npm run build
